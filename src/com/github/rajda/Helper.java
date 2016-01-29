@@ -1,13 +1,7 @@
 package com.github.rajda;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Random;
 
 public class Helper {
 
@@ -28,28 +22,23 @@ public class Helper {
     }
 
     /**
-     * Wyznacz pseudolosowa wartosc z zakresu
+     * Random value from the range
      *
-     * @param low
-     * @param high
+     * @param low - the lowest
+     * @param high - the highest
      * @return
      */
-    public static int random(int low, int high) {// , boolean integerValue) {
+    public static int random(int low, int high) {
         Random generator = new Random();
-        // if (integerValue) {
-        return (generator.nextInt((int) high - (int) low + 1) + (int) low);
-        // }
-        // double range = high - low + 1;
-        // double fraction = range * generator.nextDouble();
-        // return (fraction + low);
+        return (generator.nextInt(high - low + 1) + low);
     }
 
     /**
-     * Wyznacz pseudolosowa wartosc z zakresu, ale rozna od wartosci odniesienia
+     * Random value from the range except referenced value
      *
-     * @param low
-     * @param high
-     * @param referenceValue - wartosc odniesienia
+     * @param low - the lowest
+     * @param high - the highest
+     * @param referenceValue
      * @return
      */
     public static int random(int low, int high, int referenceValue) {
@@ -57,26 +46,10 @@ public class Helper {
         int randomValue;
 
         do {
-            randomValue = (generator.nextInt((int) high - (int) low + 1) + (int) low);
+            randomValue = (generator.nextInt(high - low + 1) + low);
         } while (randomValue == referenceValue);
 
         return randomValue;
-    }
-
-    /**
-     * Wyznacz pseudolosowa wartosc ze zbioru wartosci
-     *
-     * @param low
-     * @param high
-     * @return
-     */
-    public static int random(int[] values) {
-        Random generator = new Random();
-        return values[(generator.nextInt((int) values.length - (int) 0) + (int) 0)];
-    }
-
-    public static void pr(Object obj) {
-        System.out.print(obj);
     }
 
     public static void prn(Object obj) {
@@ -89,8 +62,6 @@ public class Helper {
     }
 
     public static void showCurrentSolutionsList(int type, ArrayList<Solution> solutionsObjectsList) {
-
-//		prn();
         Collections.sort(solutionsObjectsList, new Solution.SolutionComparator());
 
         switch (type) {
@@ -115,7 +86,6 @@ public class Helper {
     }
 
     static class Show<T> {
-
         private static final int LIST = 0;
         private static final int TABLE = 1;
         private static final int MATRIX = 2;
@@ -141,11 +111,6 @@ public class Helper {
             show(LIST);
         }
 
-        public Show(LinkedHashMap<T, T[]> map) {
-            this.map = map;
-            show(MAP);
-        }
-
         private void show(int type) {
             String chain = "";
             chain += "[";
@@ -166,9 +131,8 @@ public class Helper {
                         chain += t + ", ";
                     break;
                 case MATRIX:
-                    int numberRows = matrix.length;
-                    for (int i = 0; i < numberRows; i++) {
-                        prn(Arrays.toString(matrix[i]));
+                    for (T[] row : matrix) {
+                        prn(Arrays.toString(row));
                     }
             }
 
@@ -179,21 +143,6 @@ public class Helper {
             } catch (StringIndexOutOfBoundsException e) {
                 // e.printStackTrace();
             }
-        }
-    }
-
-    static class ValueComparator implements Comparator<Integer[]> {
-
-        Map<Integer[], Integer> base;
-
-        public ValueComparator(Map<Integer[], Integer> base) {
-            this.base = base;
-        }
-
-        @Override
-        public int compare(Integer[] o1, Integer[] o2) {
-            // TODO Auto-generated method stub
-            return 0;
         }
     }
 }

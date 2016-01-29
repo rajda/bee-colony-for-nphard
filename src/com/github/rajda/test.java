@@ -17,28 +17,7 @@ public class test {
     private static final int lowerLimit = 11;
     private static final int upperLimit = 17;
 
-    /**
-     * @param args
-     */
     public static void main(String[] args) {
-
-//		numberCustomers[0] = 15;
-//		numberLinks[0] = 41;
-//		numberCustomers[1] = 15;
-//		numberLinks[1] = 60;
-//		numberCustomers[2] = 25;
-//		numberLinks[2] = 54;
-//		numberCustomers[3] = 25;
-//		numberLinks[3] = 61;
-//		numberCustomers[4] = 30;
-//		numberLinks[4] = 57;
-//		numberCustomers[5] = 30;
-//		numberLinks[5] = 76;
-//		numberCustomers[6] = 50;
-//		numberLinks[6] = 85;
-//		numberCustomers[7] = 50;
-//		numberLinks[7] = 98;
-
         numberCustomers[0] = 15;
         numberLinks[0] = 43;
         numberCustomers[1] = 15;
@@ -67,7 +46,7 @@ public class test {
             if (numberLinks[i] > maxNumberLinks || numberLinks[i] < 1) {
                 Scanner in = new Scanner(System.in);
                 while (numberLinks[i] > maxNumberLinks || numberLinks[i] < 1) {
-                    System.out.print("Podaj liczb� ��czy pomi�dzy u�ytkownikami (1<=x<=" + maxNumberLinks + "): ");
+                    System.out.print("Type the number of links between users (1<=x<=" + maxNumberLinks + "): ");
                     numberLinks[i] = Integer.parseInt(in.nextLine());
                 }
                 in.close();

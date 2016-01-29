@@ -1,9 +1,9 @@
 package com.github.rajda;
 
-import static com.github.rajda.Helper.*;
-
 import java.util.Arrays;
 import java.util.Comparator;
+
+import static com.github.rajda.Helper.random;
 
 public class Solution implements Cloneable {
 
@@ -21,13 +21,12 @@ public class Solution implements Cloneable {
         this.numberOfMinPart = parameters[1];
         this.numberOfMaxPart = parameters[2];
         this.numberADM = parameters[3];
-        //prn(this.toString());
     }
 
     public Solution clone() {
         try {
             Solution cloneSolution = (Solution) super.clone();
-            cloneSolution.solution = (Integer[]) solution.clone();
+            cloneSolution.solution = solution.clone();
             return cloneSolution;
         } catch (CloneNotSupportedException e) {
             e.printStackTrace();
