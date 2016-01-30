@@ -4,19 +4,12 @@ import java.util.*;
 import java.util.Map.Entry;
 
 public class Helper {
-
     private static final String RANDOM_SOLUTIONS = "RANDOM SOLUTIONS: ";
     private static final String EXCHANGE_MIN_PARTITION = "AFTER ASSIGNED EDGES TO MINUMUM PARTITION: ";
     private static final String EXCHANGE_TWO_CUSTOMERS = "AFTER REPLACE EDGES BETWEEN PARTITIONS: ";
     private static final String FINISH_SOLUTION_1 = "FINISH SOLUTION, numberCustomers: ";
     private static final String FINISH_SOLUTION_2 = ", numberLinks: ";
 
-    /**
-     * Wyznaczenie cechy gornej z danej liczby
-     *
-     * @param value - liczba double
-     * @return
-     */
     public static int getCeilFromDouble(double value) {
         return (value == (int) value) ? (int) value : (int) value + 1;
     }
@@ -62,7 +55,7 @@ public class Helper {
     }
 
     public static void showCurrentSolutionsList(int type, ArrayList<Solution> solutionsObjectsList) {
-        Collections.sort(solutionsObjectsList, new Solution.SolutionComparator());
+        Collections.sort(solutionsObjectsList, (o1, o2) -> o1.getFitnessValue().compareTo(o2.getFitnessValue()));
 
         switch (type) {
             case BeeAlgorithmInIDP.BLANK_ENTRY:

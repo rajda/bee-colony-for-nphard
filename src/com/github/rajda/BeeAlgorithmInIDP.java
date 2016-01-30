@@ -11,7 +11,6 @@ import static com.github.rajda.Helper.*;
  * @author Jacek Rajda
  */
 public class BeeAlgorithmInIDP {
-
     private int k;
     public static int numberCustomers, numberLinks;
 
@@ -54,7 +53,6 @@ public class BeeAlgorithmInIDP {
     public static final int INITIAL_RANDOM_SOLUTIONS = 0, EXCHANGE_MIN_PARTITION = 1, EXCHANGE_TWO_CUSTOMERS = 2, BLANK_ENTRY = 3, FINISH_SOLUTION = 4;
 
     private ArrayList<Solution> solutionsObjectsList;
-    public static int progressValue;
 
     /**
      * Number of scout bees
@@ -75,9 +73,9 @@ public class BeeAlgorithmInIDP {
         this.numberCustomers = numberCustomers;
         this.numberLinks = numberLinks;
         this.demands = new Double[numberCustomers][numberCustomers];
-        this.demandsAsList = new ArrayList<Double>();
+        this.demandsAsList = new ArrayList<>();
         this.positionsOfNonzeroDemands = new Integer[numberLinks];
-        this.customersAssignedToLink = new LinkedHashMap<Integer, Integer[]>();
+        this.customersAssignedToLink = new LinkedHashMap<>();
 
         BeeAlgorithmInIDP.iterationsNumber = iterationsNumber;
         BeeAlgorithmInIDP.optimizationCyclesNumber = optimizationCyclesNumber;
@@ -209,17 +207,16 @@ public class BeeAlgorithmInIDP {
      *             partitions
      */
     private void optimize(int type) {
-
-        int howMany = 0;
-        int t = 0;
-        int firstPartition = 0;
-        int secondPartition = 0;
-        Solution currentSolution = null;
-        Solution testSolution = null;
+        int howMany;
+        int t;
+        int firstPartition;
+        int secondPartition;
+        Solution currentSolution;
+        Solution testSolution;
 
         switch (type) {
             case EXCHANGE_MIN_PARTITION:
-                prn(currentCycle * 100 / optimizationCyclesNumber + " %");
+                prn(currentCycle * 100 / optimizationCyclesNumber + "%");
 
                 for (howMany = 0; howMany < iterationsNumber; howMany++) {
                     for (int i = 0; i < n; i++) {
@@ -246,7 +243,7 @@ public class BeeAlgorithmInIDP {
                                     t = 0;
                                     firstPartition = random(0, k - 1);
                                     secondPartition = random(0, k - 1, firstPartition);
-                                    int numberOfNewPartition = -1;
+                                    int numberOfNewPartition;
                                     testSolution = currentSolution.clone();
                                     do {
                                         numberOfNewPartition = returnNumberOfNewPartitionForEdge(returnCustomers(t), testSolution, firstPartition,
@@ -283,11 +280,10 @@ public class BeeAlgorithmInIDP {
     }
 
     public void initialDemandMatrix() {
-        int i = 0, j = 0;
+        int i, j;
 
         int increase = 0;
         while (increase != numberLinks) {
-
             // random indexes of demand matrix
             i = random(0, numberCustomers - 2);
             j = random(i + 1, numberCustomers - 1);
@@ -362,9 +358,9 @@ public class BeeAlgorithmInIDP {
         /**
          * Add to each partition ids of assigned customers
          */
-        ArrayList<Set<Integer>> listWithADMs = new ArrayList<Set<Integer>>();
+        ArrayList<Set<Integer>> listWithADMs = new ArrayList<>();
         for (int i = 0; i < k; i++) {
-            listWithADMs.add(new HashSet<Integer>());
+            listWithADMs.add(new HashSet<>());
         }
 
         for (int i = 0; i < numberLinks; i++) {
@@ -414,7 +410,7 @@ public class BeeAlgorithmInIDP {
         /**
          * Count capacity volume for each partition
          */
-        Double tempCapacity = 0.0;
+        Double tempCapacity;
 
         for (int i = 0; i < numberLinks; i++) {
             tempCapacity = listWithVolumeCapacity.get(tempSolution[i]);
@@ -444,7 +440,7 @@ public class BeeAlgorithmInIDP {
     private synchronized Solution exchangeTwoCustomers(Solution solution) {
         Solution newSolution = solution.clone();
         int firstPartition = newSolution.getSolution()[random(0, numberLinks - 1)];
-        int secondPartition = 0;
+        int secondPartition;
 
         do {
             secondPartition = newSolution.getSolution()[random(0, numberLinks - 1)];
@@ -518,7 +514,7 @@ public class BeeAlgorithmInIDP {
     private synchronized int returnNumberOfNewPartitionForEdge(Integer[] customers, Solution solution, int firstPartition, int secondPartition) {
         int numberOfFirstCustomer = customers[0];
         int numberOfSecondCustomer = customers[1];
-        int numberOfTempEdge = -1;
+        int numberOfTempEdge;
 
         for (int i = 0; i < numberCustomers; i++) {
             if (i > numberOfFirstCustomer) {

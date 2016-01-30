@@ -1,12 +1,10 @@
 package com.github.rajda;
 
 import java.util.Arrays;
-import java.util.Comparator;
 
 import static com.github.rajda.Helper.random;
 
 public class Solution implements Cloneable {
-
     private Integer[] solution;
     private int solutionSize;
     private int fitnessValue;
@@ -80,7 +78,6 @@ public class Solution implements Cloneable {
     }
 
     public int getRandomUser(int partition) {
-
         int indexOfUser = random(0, solutionSize - 1);
 
         while (solution[indexOfUser] != partition) {
@@ -91,14 +88,5 @@ public class Solution implements Cloneable {
 
     public String toString() {
         return getFitnessValue() + ", " + getNumberOfMinPart() + ", " + getNumberOfMaxPart() + " : " + Arrays.toString(solution);
-    }
-
-    static class SolutionComparator implements Comparator<Solution> {
-
-        @Override
-        public int compare(Solution o1, Solution o2) {
-            return o1.getFitnessValue().compareTo(o2.getFitnessValue());
-        }
-
     }
 }
