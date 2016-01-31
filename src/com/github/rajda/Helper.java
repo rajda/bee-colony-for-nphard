@@ -8,11 +8,11 @@ import java.util.Map.Entry;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Helper {
-    private static final String RANDOM_SOLUTIONS = "RANDOM SOLUTIONS: ";
-    private static final String EXCHANGE_MIN_PARTITION = "AFTER ASSIGNED EDGES TO MINUMUM PARTITION: ";
-    private static final String EXCHANGE_TWO_CUSTOMERS = "AFTER REPLACE EDGES BETWEEN PARTITIONS: ";
-    private static final String FINISH_SOLUTION_1 = "FINISH SOLUTION, customersNumber: ";
-    private static final String FINISH_SOLUTION_2 = ", linksNumber: ";
+//    private static final String RANDOM_SOLUTIONS = "RANDOM SOLUTIONS: ";
+//    private static final String EXCHANGE_MIN_PARTITION = "AFTER ASSIGNED EDGES TO MINUMUM PARTITION: ";
+//    private static final String EXCHANGE_TWO_CUSTOMERS = "AFTER REPLACE EDGES BETWEEN PARTITIONS: ";
+//    private static final String FINISH_SOLUTION_1 = "FINISH SOLUTION, customersNumber: ";
+//    private static final String FINISH_SOLUTION_2 = ", linksNumber: ";
 
     public static int getCeilFromDouble(double value) {
         return (int) Math.ceil(value);
@@ -53,25 +53,32 @@ public class Helper {
         System.out.println();
     }
 
+    public static void showCurrentSolutionsList(OptimizeStrategyFactory.Type type, ArrayList<Solution> solutionsObjectsList) {
+        Collections.sort(solutionsObjectsList, (o1, o2) -> Integer.compare(o1.getFitnessValue(), o2.getFitnessValue()));
+
+        switch (type) {
+            case EXCHANGE_MIN_PARTITION:
+//                prn(EXCHANGE_MIN_PARTITION);
+                break;
+            case EXCHANGE_TWO_CUSTOMERS:
+//                prn(EXCHANGE_TWO_CUSTOMERS);
+                break;
+        }
+    }
+
     public static void showCurrentSolutionsList(int type, ArrayList<Solution> solutionsObjectsList) {
         Collections.sort(solutionsObjectsList, (o1, o2) -> Integer.compare(o1.getFitnessValue(), o2.getFitnessValue()));
 
         switch (type) {
             case BeeAlgorithmInIDP.BLANK_ENTRY:
                 break;
-		case BeeAlgorithmInIDP.INITIAL_RANDOM_SOLUTIONS:
-			prn(RANDOM_SOLUTIONS);
-			break;
-		case BeeAlgorithmInIDP.EXCHANGE_MIN_PARTITION:
-			prn(EXCHANGE_MIN_PARTITION);
-			break;
-		case BeeAlgorithmInIDP.EXCHANGE_TWO_CUSTOMERS:
-			prn(EXCHANGE_TWO_CUSTOMERS);
-			break;
-        case BeeAlgorithmInIDP.FINISH_SOLUTION:
-            prn(FINISH_SOLUTION_1 + BeeAlgorithmInIDP.customersNumber + FINISH_SOLUTION_2 + BeeAlgorithmInIDP.linksNumber + ": ");
-            solutionsObjectsList.forEach(Helper::prn);
-            break;
+            case BeeAlgorithmInIDP.INITIAL_RANDOM_SOLUTIONS:
+//                prn(RANDOM_SOLUTIONS);
+                break;
+            case BeeAlgorithmInIDP.FINISH_SOLUTION:
+//                prn(FINISH_SOLUTION_1 + BeeAlgorithmInIDP.customersNumber + FINISH_SOLUTION_2 + BeeAlgorithmInIDP.linksNumber + ": ");
+                solutionsObjectsList.forEach(Helper::prn);
+                break;
         }
     }
 

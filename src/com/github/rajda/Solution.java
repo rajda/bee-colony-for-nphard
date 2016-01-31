@@ -48,7 +48,6 @@ public class Solution implements Cloneable {
 
     public int getRandomUserFromNotMinPartition() {
         int indexOfUser = random(0, solutionSize - 1);
-
         while (solution[indexOfUser] == getNumberOfMinPart()) {
             indexOfUser = random(0, solutionSize - 1);
         }

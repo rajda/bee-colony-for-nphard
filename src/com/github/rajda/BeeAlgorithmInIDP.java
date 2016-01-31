@@ -20,54 +20,54 @@ public class BeeAlgorithmInIDP {
     /**
      * Number of scout bees
      */
-    private static final int SCOUT_BEES_NUMBER = 10;
+    public static final int SCOUT_BEES_NUMBER = 10;
 
     /**
      * Number of best sites out of n selected sites
      */
-    private static final int SELECTED_BEST_SITES_NUMBER = 10;
+    public static final int SELECTED_BEST_SITES_NUMBER = 10;
 
     /**
      * Number of bees recruited for each site
      */
-    private static final int BEES_NUMBER_FOR_EACH_SITE = 10;
+    public static final int BEES_NUMBER_FOR_EACH_SITE = 10;
 
-    public static int customersNumber, linksNumber;
-    private int partitionsNumber;
+    public int customersNumber, linksNumber;
+    public int partitionsNumber;
 
     /**
      * Number of all edges
      */
-    private int totalEdgesNumber;
+    public int totalEdgesNumber;
 
     /**
      * Number of iterations for each optimization method
      */
-    private int iterationsNumber;
+    public int iterationsNumber;
 
     /**
      * Number of optimization cycles
      */
-    private int optimizationCyclesNumber;
+    public int optimizationCyclesNumber;
 
     /**
      * Number of current cycle
      */
-    private static int currentCycleId;
+    public static int currentCycleId;
 
     /**
      * Bandwith of each partition
      */
-    private int bandwith;
-    private int lowerLimit, upperLimit;
-    private Double[][] demands;
-    private ArrayList<Double> demandsAsList;
-    private Integer[] positionsOfNonzeroDemands;
-    private LinkedHashMap<Integer, Integer[]> customersAssignedToLink;
-    private int penaltyFactorForBadSolutions = 100;
-    private ArrayList<Solution> solutionsObjectsList;
+    public int bandwidth;
+    public int lowerLimit, upperLimit;
+    public Double[][] demands;
+    public ArrayList<Double> demandsAsList;
+    public Integer[] positionsOfNonzeroDemands;
+    public LinkedHashMap<Integer, Integer[]> customersAssignedToLink;
+    public int penaltyFactorForBadSolutions = 100;
+    public ArrayList<Solution> solutionsObjectsList;
 
-    public BeeAlgorithmInIDP(int customersNumber, int linksNumber, int bandwith, int lowerLimit, int upperLimit, int iterationsNumber, int optimizationCyclesNumber) {
+    public BeeAlgorithmInIDP(int customersNumber, int linksNumber, int bandwidth, int lowerLimit, int upperLimit, int iterationsNumber, int optimizationCyclesNumber) {
         this.customersNumber = customersNumber;
         this.linksNumber = linksNumber;
         this.demands = new Double[customersNumber][customersNumber];
@@ -77,7 +77,7 @@ public class BeeAlgorithmInIDP {
 
         this.iterationsNumber = iterationsNumber;
         this.optimizationCyclesNumber = optimizationCyclesNumber;
-        this.bandwith = bandwith;
+        this.bandwidth = bandwidth;
         this.lowerLimit = lowerLimit;
         this.upperLimit = upperLimit;
         init();
@@ -105,9 +105,7 @@ public class BeeAlgorithmInIDP {
     private void initialNumberOfRings() {
         double dSum = 0;
 
-        /**
-         * Sum up values in matrix of demands
-         */
+        /** Sum up values in matrix of demands */
         for (int i = 0; i < customersNumber; i++) {
             for (int j = 0; j < customersNumber; j++) {
                 if (demands[i][j] != null)
@@ -115,32 +113,23 @@ public class BeeAlgorithmInIDP {
             }
         }
 
-        /**
-         * Initial number of partitions
-         */
-        int klb = getCeilFromDouble((dSum / 2) / bandwith);
-        // partitionsNumber = klb + 1;
-        // partitionsNumber = klb == 1 ? 2 : klb;
-        partitionsNumber = klb;
+        /** Initial number of partitions */
+        partitionsNumber = getCeilFromDouble((dSum / 2) / bandwidth);
 
         prn();
-        prn("SUM OF DEMANDS BETWEEN CUSTOMERS: " + dSum / 2);
+        prn("Demands sum between customers: " + dSum / 2);
         prn();
-        prn("INITIAL NUMBER OF PARTITIONS: " + partitionsNumber);
+        prn("Initial partitions number: " + partitionsNumber);
     }
 
     public void mainSteps() {
         int linkId;
 
-        /**
-         * Initial Edges, each edge assigned to the -1st partition
-         */
+        /** Initial Edges, each edge assigned to the -1st partition */
         int edge[] = new int[linksNumber];
         Arrays.fill(edge, -1);
 
-        /**
-         * Initial numberOfEdgesAssigned to each partition
-         */
+        /** Initial numberOfEdgesAssigned to each partition */
         int numberOfEdgesAssigned[] = new int[partitionsNumber];
 
         int[] assignments = new int[linksNumber];
@@ -154,9 +143,7 @@ public class BeeAlgorithmInIDP {
             }
         }
 
-        /**
-         * Initial arrangement of scout bees
-         */
+        /** Initial arrangement of scout bees */
         for (int scoutBeeId = 0; scoutBeeId < SCOUT_BEES_NUMBER; scoutBeeId++) {
             Arrays.fill(numberOfEdgesAssigned, 0);
 
@@ -173,18 +160,14 @@ public class BeeAlgorithmInIDP {
             solutionsObjectsList.add(new Solution(assignments.clone(), countFitness(assignments)));
         }
 
-        /**
-         * Show list of initial solutions
-         */
+        /** Show list of initial solutions */
         showCurrentSolutionsList(INITIAL_RANDOM_SOLUTIONS, solutionsObjectsList);
         long startTime = System.nanoTime();
 
-        /**
-         * Alternating changes between types of optimization
-         */
+        /** Alternating changes between types of optimization */
         for (currentCycleId = 0; currentCycleId < optimizationCyclesNumber; currentCycleId++) {
-            optimize(EXCHANGE_MIN_PARTITION);
-            optimize(EXCHANGE_TWO_CUSTOMERS);
+            optimize(OptimizeStrategyFactory.Type.EXCHANGE_MIN_PARTITION);
+            optimize(OptimizeStrategyFactory.Type.EXCHANGE_TWO_CUSTOMERS);
         }
 
         showCurrentSolutionsList(FINISH_SOLUTION, solutionsObjectsList);
@@ -203,73 +186,17 @@ public class BeeAlgorithmInIDP {
      *             EXCHANGE_TWO_CUSTOMERS - replace edges between two partitions
      *             partitions
      */
-    private void optimize(int type) {
-        int howMany;
-        int firstPartition;
-        int secondPartition;
-        Solution currentSolution;
-        Solution testSolution;
-
-        switch (type) {
-            case EXCHANGE_MIN_PARTITION:
-                prn(currentCycleId * 100 / optimizationCyclesNumber + "%");
-
-                for (howMany = 0; howMany < iterationsNumber; howMany++) {
-                    for (int scoutBeeId = 0; scoutBeeId < SCOUT_BEES_NUMBER; scoutBeeId++) {
-                        exchangeMinPartition(solutionsObjectsList.get(scoutBeeId));
-                    }
-                }
-                break;
-
-            case EXCHANGE_TWO_CUSTOMERS:
-                for (howMany = 0; howMany < iterationsNumber; howMany++) {
-                    for (int bestSiteId = 0; bestSiteId < SELECTED_BEST_SITES_NUMBER; bestSiteId++) {
-                        currentSolution = solutionsObjectsList.get(bestSiteId);
-
-                        for (int i = 0; i < BEES_NUMBER_FOR_EACH_SITE; i++) {
-                            testSolution = exchangeTwoCustomers(currentSolution);
-                            if ((testSolution.getNumberOfADM() < currentSolution.getNumberOfADM() || testSolution.getNumberOfADM() == testSolution
-                                    .getFitnessValue()) && testSolution.getFitnessValue() <= currentSolution.getFitnessValue()) {
-
-                                if (solutionsObjectsList.remove(currentSolution))
-                                    solutionsObjectsList.add(testSolution);
-                            } else {
-                                if (i == BEES_NUMBER_FOR_EACH_SITE - 1) { // and no modifications with improvement
-                                    int t = 0;
-                                    firstPartition = random(0, partitionsNumber - 1);
-                                    secondPartition = random(0, partitionsNumber - 1, firstPartition);
-                                    int numberOfNewPartition;
-                                    testSolution = currentSolution.clone();
-                                    do {
-                                        numberOfNewPartition = getNumberOfNewPartitionForEdge(getCustomers(t), testSolution, firstPartition, secondPartition);
-
-                                        if (numberOfNewPartition != -1) {
-                                            // one of two customers of the edge is in the partition
-                                            testSolution.getSolution()[t] = numberOfNewPartition;
-                                            testSolution.setFitness(countFitness(testSolution.getSolution()));
-                                        }
-                                    } while (++t < linksNumber
-                                            && getCapacityVolumeForEachPart(testSolution.getSolution()).get(firstPartition) < bandwith
-                                            && getCapacityVolumeForEachPart(testSolution.getSolution()).get(secondPartition) < bandwith);
-                                }
-                            }
-                            if (testSolution.getFitnessValue() < currentSolution.getFitnessValue()) {
-                                break;
-                            }
-                        }
-                    }
-                }
-                break;
-        }
-
-        showCurrentSolutionsList(type, solutionsObjectsList);
+    private void optimize(OptimizeStrategyFactory.Type type) {
+        OptimizeStrategy optimizeStrategy = OptimizeStrategyFactory.getStrategy(type);
+        optimizeStrategy.optimize(this);
+//        showCurrentSolutionsList(type, solutionsObjectsList);
     }
 
     public void initialDemandMatrix() {
         int i, j;
 
-        int increase = 0;
-        while (increase != linksNumber) {
+        int linkId = 0;
+        while (linkId != linksNumber) {
             // random indexes of demand matrix
             i = random(0, customersNumber - 2);
             j = random(i + 1, customersNumber - 1);
@@ -277,13 +204,9 @@ public class BeeAlgorithmInIDP {
             if (demands[i][j] == null) {
                 demands[i][j] = 1.5 * random(lowerLimit, upperLimit);
                 demands[j][i] = demands[i][j];
-                increase += 1;
+                linkId += 1;
             }
         }
-
-        prn();
-        prn("DEMANDS MATRIX: ");
-        new Show<>(demands);
 
         int cursor = 0;
         int positionOfNonzeroDemand = -1;
@@ -302,11 +225,15 @@ public class BeeAlgorithmInIDP {
         }
 
         prn();
-        prn("NON-ZERO CELLS FROM DEMANDS MATRIX: ");
+        prn("Demands matrix: ");
+        new Show<>(demands);
+
+        prn();
+        prn("Non-zero cells from demands matrix: ");
         new Show<>(demandsAsList);
 
         prn();
-        prn("POSITIONS OF LINKS WITH NON-ZERO DEMANDS: ");
+        prn("Positions of links with non-zero demands: ");
         new Show<>(positionsOfNonzeroDemands);
         prn();
     }
@@ -319,14 +246,12 @@ public class BeeAlgorithmInIDP {
      * [1] - number of minimum partition<br>
      * [2] - number of maximum partition
      */
-    private Fitness countFitness(int[] optimalSolution) {
+    public Fitness countFitness(int[] optimalSolution) {
         int numberADM = 0;
         int violations = 0;
         int totalFitness = 0;
 
-        /**
-         * Volume capacity for each partition
-         */
+        /** Volume capacity for each partition */
         HashMap<Integer, Double> listWithVolumeCapacity = getCapacityVolumeForEachPart(optimalSolution);
 
         Entry<Integer, Double> maxEntry = null;
@@ -341,9 +266,7 @@ public class BeeAlgorithmInIDP {
             }
         }
 
-        /**
-         * Add to each partition ids of assigned customers
-         */
+        /** Add to each partition ids of assigned customers */
         ArrayList<Set<Integer>> listWithADMs = new ArrayList<>();
         for (int i = 0; i < partitionsNumber; i++) {
             listWithADMs.add(new HashSet<>());
@@ -354,21 +277,17 @@ public class BeeAlgorithmInIDP {
             listWithADMs.get(optimalSolution[i]).add(customersAssignedToLink.get(i)[1]);
         }
 
-        /**
-         * Add to totalFitness numbers of ADMs from each partition
-         */
+        /** Add to totalFitness numbers of ADMs from each partition */
         for (int i = 0; i < partitionsNumber; i++) {
             numberADM += listWithADMs.get(i).size();
         }
         totalFitness += numberADM;
 
-        /**
-         * Add to totalFitness violations for each partition
-         */
+        /** Add to totalFitness violations for each partition */
         for (int i = 0; i < partitionsNumber; i++) {
             Double d = listWithVolumeCapacity.get(i);
             if (d != null) {
-                violations += listWithVolumeCapacity.get(i) > bandwith ? penaltyFactorForBadSolutions * (listWithVolumeCapacity.get(i) - bandwith) : 0;
+                violations += listWithVolumeCapacity.get(i) > bandwidth ? penaltyFactorForBadSolutions * (listWithVolumeCapacity.get(i) - bandwidth) : 0;
             }
         }
         totalFitness += violations;
@@ -382,15 +301,11 @@ public class BeeAlgorithmInIDP {
      * @param tempSolution
      * @return
      */
-    private HashMap<Integer, Double> getCapacityVolumeForEachPart(int[] tempSolution) {
-        /**
-         * Initialization map
-         */
+    public HashMap<Integer, Double> getCapacityVolumeForEachPart(int[] tempSolution) {
+        /** Initialization map */
         HashMap<Integer, Double> listWithVolumeCapacity = new HashMap<>();
 
-        /**
-         * Count capacity volume for each partition
-         */
+        /** Count capacity volume for each partition */
         Double tempCapacity;
 
         for (int i = 0; i < linksNumber; i++) {
@@ -398,117 +313,12 @@ public class BeeAlgorithmInIDP {
             listWithVolumeCapacity.put(tempSolution[i], tempCapacity == null ? demandsAsList.get(i) : (tempCapacity + demandsAsList.get(i)));
         }
 
-        /**
-         * In case of too big number of partitions and any edge is assigned to one of them
-         */
+        /** In case of too big number of partitions and any edge is assigned to one of them */
         for (int i = 0; i < partitionsNumber; i++) {
             if (!listWithVolumeCapacity.containsKey(i)) {
                 listWithVolumeCapacity.put(i, 0.0);
             }
         }
         return listWithVolumeCapacity;
-    }
-
-    /**
-     * Local search: exchange two customers between two partitions
-     *
-     * @param solution
-     */
-    private Solution exchangeTwoCustomers(Solution solution) {
-        Solution newSolution = solution.clone();
-        int firstPartition = newSolution.getSolution()[random(0, linksNumber - 1)];
-        int secondPartition;
-
-        do {
-            secondPartition = newSolution.getSolution()[random(0, linksNumber - 1)];
-        } while (secondPartition == firstPartition);
-
-        int firstUser = solution.getRandomUser(firstPartition);
-        int secondUser = solution.getRandomUser(secondPartition);
-
-        newSolution.getSolution()[firstUser] = secondPartition;
-        newSolution.getSolution()[secondUser] = firstPartition;
-        newSolution.setFitness(countFitness(newSolution.getSolution()));
-        return newSolution;
-    }
-
-    /**
-     * Local search: assigned a customer to partition with lowest amount
-     *
-     * @param solution
-     */
-    private Solution exchangeMinPartition(Solution solution) {
-        Solution newSolution = solution.clone();
-        int minPartition = solution.getNumberOfMinPart();
-
-        int user = solution.getRandomUserFromNotMinPartition();
-
-        newSolution.getSolution()[user] = minPartition;
-        newSolution.setFitness(countFitness(newSolution.getSolution()));
-
-        if (newSolution.getFitnessValue() <= solution.getFitnessValue()) {
-            solutionsObjectsList.remove(solution);
-            solutionsObjectsList.add(newSolution);
-        }
-        return newSolution;
-    }
-
-    /**
-     * Appoint partition index for an edge between the two users
-     *
-     * @param edge
-     * @return
-     */
-    private Integer[] getCustomers(Integer edge) {
-        for (Entry<Integer, Integer[]> entry : customersAssignedToLink.entrySet()) {
-            if (edge.equals(entry.getKey())) {
-                return entry.getValue();
-            }
-        }
-        return null;
-    }
-
-    private int getNumberOfEdge(Integer[] customers) {
-        for (Entry<Integer, Integer[]> entry : customersAssignedToLink.entrySet()) {
-            if (customers[0].equals(entry.getValue()[0]) && customers[1].equals(entry.getValue()[1])) {
-                return entry.getKey();
-            }
-        }
-        return -1;
-    }
-
-    private int getNumberOfNewPartitionForEdge(Integer[] customers, Solution solution, int firstPartition, int secondPartition) {
-        int numberOfFirstCustomer = customers[0];
-        int numberOfSecondCustomer = customers[1];
-        int numberOfTempEdge;
-
-        for (int i = 0; i < customersNumber; i++) {
-            if (i > numberOfFirstCustomer) {
-                numberOfTempEdge = getNumberOfEdge(new Integer[]{numberOfFirstCustomer, i});
-                int assignedPartition = assignPartitionToEdge(solution, firstPartition, secondPartition, numberOfTempEdge);
-                if (assignedPartition != -1) return assignedPartition;
-            }
-        }
-
-        for (int i = 0; i < customersNumber; i++) {
-            if (i < numberOfSecondCustomer) {
-                numberOfTempEdge = getNumberOfEdge(new Integer[]{i, numberOfSecondCustomer});
-                int assignedPartition = assignPartitionToEdge(solution, firstPartition, secondPartition, numberOfTempEdge);
-                if (assignedPartition != -1) return assignedPartition;
-            }
-        }
-        return -1;
-    }
-
-    private int assignPartitionToEdge(Solution solution, int firstPartition, int secondPartition, int numberOfTempEdge) {
-        if (numberOfTempEdge != -1) {
-            // if current edge has a positive value
-            if (solution.getSolution()[numberOfTempEdge] == firstPartition) {
-                return firstPartition;
-            } else if (solution.getSolution()[numberOfTempEdge] == secondPartition) {
-                return secondPartition;
-            }
-        }
-        return -1;
     }
 }
