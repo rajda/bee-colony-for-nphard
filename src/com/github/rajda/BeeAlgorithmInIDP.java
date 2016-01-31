@@ -130,7 +130,7 @@ public class BeeAlgorithmInIDP {
     }
 
     public void mainSteps() {
-        int l;
+        int linkId;
 
         /**
          * Initial Edges, each edge assigned to the -1st partition
@@ -146,29 +146,28 @@ public class BeeAlgorithmInIDP {
         int[] assignments = new int[linksNumber];
         solutionsObjectsList = new ArrayList<>();
 
-        l = 0;
-        while (l != linksNumber) {
+        linkId = 0;
+        while (linkId != linksNumber) {
             int randomEdge = random(0, linksNumber - 1);
             if (edge[randomEdge] == -1) {
-                edge[randomEdge] = l;
-                l += 1;
+                edge[randomEdge] = linkId++;
             }
         }
 
         /**
          * Initial arrangement of scout bees
          */
-        for (int h = 0; h < SCOUT_BEES_NUMBER; h++) {
+        for (int scoutBeeId = 0; scoutBeeId < SCOUT_BEES_NUMBER; scoutBeeId++) {
             Arrays.fill(numberOfEdgesAssigned, 0);
 
-            for (l = 0; l < linksNumber; l++) {
+            for (linkId = 0; linkId < linksNumber; linkId++) {
                 int randomPartition = random(0, partitionsNumber - 1);
                 while (numberOfEdgesAssigned[randomPartition] > totalEdgesNumber / partitionsNumber) {
                     randomPartition = random(0, partitionsNumber - 1);
                     prn(randomPartition);
                 }
 
-                assignments[edge[l]] = randomPartition;
+                assignments[edge[linkId]] = randomPartition;
                 numberOfEdgesAssigned[randomPartition] = numberOfEdgesAssigned[randomPartition] + 1;
             }
             solutionsObjectsList.add(new Solution(assignments.clone(), countFitness(assignments)));
@@ -206,7 +205,6 @@ public class BeeAlgorithmInIDP {
      */
     private void optimize(int type) {
         int howMany;
-        int t;
         int firstPartition;
         int secondPartition;
         Solution currentSolution;
@@ -217,16 +215,16 @@ public class BeeAlgorithmInIDP {
                 prn(currentCycleId * 100 / optimizationCyclesNumber + "%");
 
                 for (howMany = 0; howMany < iterationsNumber; howMany++) {
-                    for (int i = 0; i < SCOUT_BEES_NUMBER; i++) {
-                        exchangeMinPartition(solutionsObjectsList.get(i));
+                    for (int scoutBeeId = 0; scoutBeeId < SCOUT_BEES_NUMBER; scoutBeeId++) {
+                        exchangeMinPartition(solutionsObjectsList.get(scoutBeeId));
                     }
                 }
                 break;
 
             case EXCHANGE_TWO_CUSTOMERS:
                 for (howMany = 0; howMany < iterationsNumber; howMany++) {
-                    for (int j = 0; j < SELECTED_BEST_SITES_NUMBER; j++) {
-                        currentSolution = solutionsObjectsList.get(j);
+                    for (int bestSiteId = 0; bestSiteId < SELECTED_BEST_SITES_NUMBER; bestSiteId++) {
+                        currentSolution = solutionsObjectsList.get(bestSiteId);
 
                         for (int i = 0; i < BEES_NUMBER_FOR_EACH_SITE; i++) {
                             testSolution = exchangeTwoCustomers(currentSolution);
@@ -237,36 +235,28 @@ public class BeeAlgorithmInIDP {
                                     solutionsObjectsList.add(testSolution);
                             } else {
                                 if (i == BEES_NUMBER_FOR_EACH_SITE - 1) { // and no modifications with improvement
-                                    t = 0;
+                                    int t = 0;
                                     firstPartition = random(0, partitionsNumber - 1);
                                     secondPartition = random(0, partitionsNumber - 1, firstPartition);
                                     int numberOfNewPartition;
                                     testSolution = currentSolution.clone();
                                     do {
-                                        numberOfNewPartition = returnNumberOfNewPartitionForEdge(returnCustomers(t), testSolution, firstPartition, secondPartition);
+                                        numberOfNewPartition = getNumberOfNewPartitionForEdge(getCustomers(t), testSolution, firstPartition, secondPartition);
 
                                         if (numberOfNewPartition != -1) {
                                             // one of two customers of the edge is in the partition
                                             testSolution.getSolution()[t] = numberOfNewPartition;
-
-                                            int[] newParameters = countFitness(testSolution.getSolution());
-
-                                            testSolution.setFitnessValue(newParameters[0]);
-                                            testSolution.setNumberOfMinPart(newParameters[1]);
-                                            testSolution.setNumberOfMaxPart(newParameters[2]);
-                                            testSolution.setNumberOfADM(newParameters[3]);
+                                            testSolution.setFitness(countFitness(testSolution.getSolution()));
                                         }
-
-                                        t += 1;
-                                    } while (t < linksNumber
-                                            && returnCapacityVolumeForEachPart(testSolution.getSolution()).get(firstPartition) < bandwith
-                                            && returnCapacityVolumeForEachPart(testSolution.getSolution()).get(secondPartition) < bandwith);
+                                    } while (++t < linksNumber
+                                            && getCapacityVolumeForEachPart(testSolution.getSolution()).get(firstPartition) < bandwith
+                                            && getCapacityVolumeForEachPart(testSolution.getSolution()).get(secondPartition) < bandwith);
                                 }
                             }
                             if (testSolution.getFitnessValue() < currentSolution.getFitnessValue()) {
-                                i = BEES_NUMBER_FOR_EACH_SITE;
+                                break;
                             }
-                        }// end for
+                        }
                     }
                 }
                 break;
@@ -329,15 +319,15 @@ public class BeeAlgorithmInIDP {
      * [1] - number of minimum partition<br>
      * [2] - number of maximum partition
      */
-    private int[] countFitness(int[] optimalSolution) {
-        int[] valuesReturn = new int[4];
+    private Fitness countFitness(int[] optimalSolution) {
+        int numberADM = 0;
+        int violations = 0;
         int totalFitness = 0;
-        int numberADM;
 
         /**
          * Volume capacity for each partition
          */
-        HashMap<Integer, Double> listWithVolumeCapacity = returnCapacityVolumeForEachPart(optimalSolution);
+        HashMap<Integer, Double> listWithVolumeCapacity = getCapacityVolumeForEachPart(optimalSolution);
 
         Entry<Integer, Double> maxEntry = null;
         Entry<Integer, Double> minEntry = null;
@@ -368,29 +358,22 @@ public class BeeAlgorithmInIDP {
          * Add to totalFitness numbers of ADMs from each partition
          */
         for (int i = 0; i < partitionsNumber; i++) {
-            totalFitness += listWithADMs.get(i).size();
+            numberADM += listWithADMs.get(i).size();
         }
-
-        numberADM = totalFitness;
+        totalFitness += numberADM;
 
         /**
          * Add to totalFitness violations for each partition
          */
-
-
         for (int i = 0; i < partitionsNumber; i++) {
             Double d = listWithVolumeCapacity.get(i);
             if (d != null) {
-                totalFitness += listWithVolumeCapacity.get(i) > bandwith ? penaltyFactorForBadSolutions * (listWithVolumeCapacity.get(i) - bandwith) : 0;
+                violations += listWithVolumeCapacity.get(i) > bandwith ? penaltyFactorForBadSolutions * (listWithVolumeCapacity.get(i) - bandwith) : 0;
             }
         }
+        totalFitness += violations;
 
-        valuesReturn[0] = totalFitness;
-        valuesReturn[1] = minEntry.getKey();
-        valuesReturn[2] = maxEntry.getKey();
-        valuesReturn[3] = numberADM;
-
-        return valuesReturn;
+        return new IdpFitness(totalFitness, minEntry.getKey(), maxEntry.getKey(), numberADM);
     }
 
     /**
@@ -399,7 +382,7 @@ public class BeeAlgorithmInIDP {
      * @param tempSolution
      * @return
      */
-    private synchronized HashMap<Integer, Double> returnCapacityVolumeForEachPart(int[] tempSolution) {
+    private HashMap<Integer, Double> getCapacityVolumeForEachPart(int[] tempSolution) {
         /**
          * Initialization map
          */
@@ -431,7 +414,7 @@ public class BeeAlgorithmInIDP {
      *
      * @param solution
      */
-    private synchronized Solution exchangeTwoCustomers(Solution solution) {
+    private Solution exchangeTwoCustomers(Solution solution) {
         Solution newSolution = solution.clone();
         int firstPartition = newSolution.getSolution()[random(0, linksNumber - 1)];
         int secondPartition;
@@ -445,12 +428,7 @@ public class BeeAlgorithmInIDP {
 
         newSolution.getSolution()[firstUser] = secondPartition;
         newSolution.getSolution()[secondUser] = firstPartition;
-
-        int[] newParameters = countFitness(newSolution.getSolution());
-        newSolution.setFitnessValue(newParameters[0]);
-        newSolution.setNumberOfMinPart(newParameters[1]);
-        newSolution.setNumberOfMaxPart(newParameters[2]);
-        newSolution.setNumberOfADM(newParameters[3]);
+        newSolution.setFitness(countFitness(newSolution.getSolution()));
         return newSolution;
     }
 
@@ -459,19 +437,14 @@ public class BeeAlgorithmInIDP {
      *
      * @param solution
      */
-    private synchronized Solution exchangeMinPartition(Solution solution) {
+    private Solution exchangeMinPartition(Solution solution) {
         Solution newSolution = solution.clone();
         int minPartition = solution.getNumberOfMinPart();
 
         int user = solution.getRandomUserFromNotMinPartition();
 
         newSolution.getSolution()[user] = minPartition;
-
-        int[] newParameters = countFitness(newSolution.getSolution());
-        newSolution.setFitnessValue(newParameters[0]);
-        newSolution.setNumberOfMinPart(newParameters[1]);
-        newSolution.setNumberOfMaxPart(newParameters[2]);
-        newSolution.setNumberOfADM(newParameters[3]);
+        newSolution.setFitness(countFitness(newSolution.getSolution()));
 
         if (newSolution.getFitnessValue() <= solution.getFitnessValue()) {
             solutionsObjectsList.remove(solution);
@@ -486,7 +459,7 @@ public class BeeAlgorithmInIDP {
      * @param edge
      * @return
      */
-    private synchronized Integer[] returnCustomers(Integer edge) {
+    private Integer[] getCustomers(Integer edge) {
         for (Entry<Integer, Integer[]> entry : customersAssignedToLink.entrySet()) {
             if (edge.equals(entry.getKey())) {
                 return entry.getValue();
@@ -495,7 +468,7 @@ public class BeeAlgorithmInIDP {
         return null;
     }
 
-    private synchronized int returnNumberOfEdge(Integer[] customers) {
+    private int getNumberOfEdge(Integer[] customers) {
         for (Entry<Integer, Integer[]> entry : customersAssignedToLink.entrySet()) {
             if (customers[0].equals(entry.getValue()[0]) && customers[1].equals(entry.getValue()[1])) {
                 return entry.getKey();
@@ -504,37 +477,36 @@ public class BeeAlgorithmInIDP {
         return -1;
     }
 
-    private synchronized int returnNumberOfNewPartitionForEdge(Integer[] customers, Solution solution, int firstPartition, int secondPartition) {
+    private int getNumberOfNewPartitionForEdge(Integer[] customers, Solution solution, int firstPartition, int secondPartition) {
         int numberOfFirstCustomer = customers[0];
         int numberOfSecondCustomer = customers[1];
         int numberOfTempEdge;
 
         for (int i = 0; i < customersNumber; i++) {
             if (i > numberOfFirstCustomer) {
-                numberOfTempEdge = returnNumberOfEdge(new Integer[]{numberOfFirstCustomer, i});
-                if (numberOfTempEdge != -1) {
-                    // if current edge has a positive value
-                    if (solution.getSolution()[numberOfTempEdge] == firstPartition) {
-                        return firstPartition;
-                    } else if (solution.getSolution()[numberOfTempEdge] == secondPartition) {
-                        return secondPartition;
-                    }
-                }
+                numberOfTempEdge = getNumberOfEdge(new Integer[]{numberOfFirstCustomer, i});
+                int assignedPartition = assignPartitionToEdge(solution, firstPartition, secondPartition, numberOfTempEdge);
+                if (assignedPartition != -1) return assignedPartition;
             }
         }
 
         for (int i = 0; i < customersNumber; i++) {
             if (i < numberOfSecondCustomer) {
-                numberOfTempEdge = returnNumberOfEdge(new Integer[]{i, numberOfSecondCustomer});
+                numberOfTempEdge = getNumberOfEdge(new Integer[]{i, numberOfSecondCustomer});
+                int assignedPartition = assignPartitionToEdge(solution, firstPartition, secondPartition, numberOfTempEdge);
+                if (assignedPartition != -1) return assignedPartition;
+            }
+        }
+        return -1;
+    }
 
-                if (numberOfTempEdge != -1) {
-                    // if current edge has a positive value
-                    if (solution.getSolution()[numberOfTempEdge] == firstPartition) {
-                        return firstPartition;
-                    } else if (solution.getSolution()[numberOfTempEdge] == secondPartition) {
-                        return secondPartition;
-                    }
-                }
+    private int assignPartitionToEdge(Solution solution, int firstPartition, int secondPartition, int numberOfTempEdge) {
+        if (numberOfTempEdge != -1) {
+            // if current edge has a positive value
+            if (solution.getSolution()[numberOfTempEdge] == firstPartition) {
+                return firstPartition;
+            } else if (solution.getSolution()[numberOfTempEdge] == secondPartition) {
+                return secondPartition;
             }
         }
         return -1;

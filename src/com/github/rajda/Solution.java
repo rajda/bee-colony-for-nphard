@@ -7,18 +7,12 @@ import static com.github.rajda.Helper.random;
 public class Solution implements Cloneable {
     private int[] solution;
     private int solutionSize;
-    private int fitnessValue;
-    private int numberADM;
-    private int numberOfMinPart;
-    private int numberOfMaxPart;
+    private IdpFitness idpFitness;
 
-    public Solution(int[] solution, int[] parameters) {
+    public Solution(int[] solution, Fitness fitness) {
         this.solution = solution;
         this.solutionSize = solution.length;
-        this.fitnessValue = parameters[0];
-        this.numberOfMinPart = parameters[1];
-        this.numberOfMaxPart = parameters[2];
-        this.numberADM = parameters[3];
+        this.idpFitness = (IdpFitness) fitness;
     }
 
     public Solution clone() {
@@ -32,36 +26,20 @@ public class Solution implements Cloneable {
         }
     }
 
-    public void setFitnessValue(int fitnessValue) {
-        this.fitnessValue = fitnessValue;
-    }
-
     public int getFitnessValue() {
-        return fitnessValue;
-    }
-
-    public void setNumberOfMinPart(int numberOfMinPart) {
-        this.numberOfMinPart = numberOfMinPart;
-    }
-
-    public void setNumberOfMaxPart(int numberOfMaxPart) {
-        this.numberOfMaxPart = numberOfMaxPart;
+        return idpFitness.getValue();
     }
 
     public int getNumberOfMinPart() {
-        return numberOfMinPart;
+        return idpFitness.getMinPartitionNumber();
     }
 
     public int getNumberOfMaxPart() {
-        return numberOfMaxPart;
-    }
-
-    public void setNumberOfADM(int numberADM) {
-        this.numberADM = numberADM;
+        return idpFitness.getMaxPartitionNumber();
     }
 
     public int getNumberOfADM() {
-        return numberADM;
+        return idpFitness.getAdmNumber();
     }
 
     public int[] getSolution() {
@@ -88,5 +66,9 @@ public class Solution implements Cloneable {
 
     public String toString() {
         return getFitnessValue() + ", " + getNumberOfMinPart() + ", " + getNumberOfMaxPart() + " : " + Arrays.toString(solution);
+    }
+
+    public void setFitness(Fitness idpFitness) {
+        this.idpFitness = (IdpFitness) idpFitness;
     }
 }

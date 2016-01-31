@@ -2,10 +2,10 @@ package com.github.rajda;
 
 import java.util.Scanner;
 
-public class test {
+public class Main {
     private static final int[] numberCustomers = {15, 15, 25, 25, 30, 30, 50, 50};
     private static final int[] numberLinks = {43, 76, 57, 86, 72, 78, 110, 143};
-    private static final int iterationsNumber = 10;
+    private static final int iterationsNumber = 1;
     private static final int optimizationCyclesNumber = 30;
 
 	 private static final int bandwith = 155;

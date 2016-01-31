@@ -1,6 +1,9 @@
 package com.github.rajda;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -56,21 +59,19 @@ public class Helper {
         switch (type) {
             case BeeAlgorithmInIDP.BLANK_ENTRY:
                 break;
-//		case BeeAlgorithmInIDP.INITIAL_RANDOM_SOLUTIONS:
-//			prn(RANDOM_SOLUTIONS);
-//			break;
-//		case BeeAlgorithmInIDP.EXCHANGE_MIN_PARTITION:
-//			prn(EXCHANGE_MIN_PARTITION);
-//			break;
-//		case BeeAlgorithmInIDP.EXCHANGE_TWO_CUSTOMERS:
-//			prn(EXCHANGE_TWO_CUSTOMERS);
-//			break;
-            case BeeAlgorithmInIDP.FINISH_SOLUTION:
-                prn(FINISH_SOLUTION_1 + BeeAlgorithmInIDP.customersNumber + FINISH_SOLUTION_2 + BeeAlgorithmInIDP.linksNumber + ": ");
-                for (int s = 0; s < solutionsObjectsList.size(); s++) {
-                    prn(solutionsObjectsList.get(s));
-                }
-                break;
+		case BeeAlgorithmInIDP.INITIAL_RANDOM_SOLUTIONS:
+			prn(RANDOM_SOLUTIONS);
+			break;
+		case BeeAlgorithmInIDP.EXCHANGE_MIN_PARTITION:
+			prn(EXCHANGE_MIN_PARTITION);
+			break;
+		case BeeAlgorithmInIDP.EXCHANGE_TWO_CUSTOMERS:
+			prn(EXCHANGE_TWO_CUSTOMERS);
+			break;
+        case BeeAlgorithmInIDP.FINISH_SOLUTION:
+            prn(FINISH_SOLUTION_1 + BeeAlgorithmInIDP.customersNumber + FINISH_SOLUTION_2 + BeeAlgorithmInIDP.linksNumber + ": ");
+            solutionsObjectsList.forEach(Helper::prn);
+            break;
         }
     }
 
