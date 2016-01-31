@@ -17,55 +17,40 @@ public class BeeAlgorithmInIDP {
             BLANK_ENTRY = 3,
             FINISH_SOLUTION = 4;
 
-    /**
-     * Number of scout bees
-     */
     public static final int SCOUT_BEES_NUMBER = 10;
-
-    /**
-     * Number of best sites out of n selected sites
-     */
     public static final int SELECTED_BEST_SITES_NUMBER = 10;
-
-    /**
-     * Number of bees recruited for each site
-     */
     public static final int BEES_NUMBER_FOR_EACH_SITE = 10;
+    public static final int PENALTY_FACTOR_FOR_BAD_SOLUTIONS = 100;
 
-    public int customersNumber, linksNumber;
-    public int partitionsNumber;
+    private int customersNumber;
+    private int linksNumber;
+    private int partitionsNumber;
 
     /**
      * Number of all edges
      */
-    public int totalEdgesNumber;
+    private int totalEdgesNumber;
 
     /**
      * Number of iterations for each optimization method
      */
-    public int iterationsNumber;
+    private int iterationsNumber;
 
     /**
      * Number of optimization cycles
      */
-    public int optimizationCyclesNumber;
+    private int optimizationCyclesNumber;
 
     /**
-     * Number of current cycle
+     * Bandwidth of each partition
      */
-    public static int currentCycleId;
-
-    /**
-     * Bandwith of each partition
-     */
-    public int bandwidth;
-    public int lowerLimit, upperLimit;
-    public Double[][] demands;
-    public ArrayList<Double> demandsAsList;
-    public Integer[] positionsOfNonzeroDemands;
-    public LinkedHashMap<Integer, Integer[]> customersAssignedToLink;
-    public int penaltyFactorForBadSolutions = 100;
-    public ArrayList<Solution> solutionsObjectsList;
+    private int bandwidth;
+    private int lowerLimit, upperLimit;
+    private Double[][] demands;
+    private ArrayList<Double> demandsAsList;
+    private Integer[] positionsOfNonzeroDemands;
+    private LinkedHashMap<Integer, Integer[]> customersAssignedToLink;
+    private ArrayList<Solution> solutionsObjectsList;
 
     public BeeAlgorithmInIDP(int customersNumber, int linksNumber, int bandwidth, int lowerLimit, int upperLimit, int iterationsNumber, int optimizationCyclesNumber) {
         this.customersNumber = customersNumber;
@@ -75,12 +60,40 @@ public class BeeAlgorithmInIDP {
         this.positionsOfNonzeroDemands = new Integer[linksNumber];
         this.customersAssignedToLink = new LinkedHashMap<>();
 
-        this.iterationsNumber = iterationsNumber;
-        this.optimizationCyclesNumber = optimizationCyclesNumber;
         this.bandwidth = bandwidth;
         this.lowerLimit = lowerLimit;
         this.upperLimit = upperLimit;
+        this.iterationsNumber = iterationsNumber;
+        this.optimizationCyclesNumber = optimizationCyclesNumber;
         init();
+    }
+
+    public int getBandwidth() {
+        return bandwidth;
+    }
+
+    public int getCustomersNumber() {
+        return customersNumber;
+    }
+
+    public int getPartitionsNumber() {
+        return partitionsNumber;
+    }
+
+    public int getLinksNumber() {
+        return linksNumber;
+    }
+
+    public int getIterationsNumber() {
+        return iterationsNumber;
+    }
+
+    public ArrayList<Solution> getSolutionsObjectsList() {
+        return solutionsObjectsList;
+    }
+
+    public LinkedHashMap<Integer, Integer[]> getCustomersAssignedToLink() {
+        return customersAssignedToLink;
     }
 
     private void init() {
@@ -90,10 +103,53 @@ public class BeeAlgorithmInIDP {
     }
 
     /**
+     * Init demand matrix with random values
+     */
+    public void initialDemandMatrix() {
+        int i, j;
+        int linkId = 0;
+        while (linkId != linksNumber) {
+            // random indexes of demand matrix
+            i = random(0, customersNumber - 2);
+            j = random(i + 1, customersNumber - 1);
+            if (demands[i][j] == null) {
+                demands[i][j] = 1.5 * random(lowerLimit, upperLimit);
+                demands[j][i] = demands[i][j];
+                linkId += 1;
+            }
+        }
+
+        int cursor = 0;
+        int positionOfNonzeroDemand = -1;
+        for (i = 0; i < customersNumber; i++) {
+            for (j = 0; j < customersNumber; j++) {
+                if (j > i) {
+                    positionOfNonzeroDemand += 1;
+                    if (demands[i][j] != null) {
+                        demandsAsList.add(demands[i][j]);
+                        positionsOfNonzeroDemands[cursor] = positionOfNonzeroDemand;
+                        customersAssignedToLink.put(cursor++, new Integer[]{i, j});
+                    }
+                }
+            }
+        }
+
+        prn();
+        prn("Demands matrix: ");
+        new Show<>(demands);
+
+        prn();
+        prn("Non-zero cells from demands matrix: ");
+        new Show<>(demandsAsList);
+
+        prn();
+        prn("Positions of links with non-zero demands: ");
+        new Show<>(positionsOfNonzeroDemands);
+        prn();
+    }
+
+    /**
      * Set the number of all possible edges between SCOUT_BEES_NUMBER-nodes in network
-     *
-     * @param numberOfNodes
-     * @return
      */
     private void initialNumberOfEdges(int numberOfNodes) {
         totalEdgesNumber = numberOfNodes * (numberOfNodes - 1) / 2;
@@ -165,7 +221,7 @@ public class BeeAlgorithmInIDP {
         long startTime = System.nanoTime();
 
         /** Alternating changes between types of optimization */
-        for (currentCycleId = 0; currentCycleId < optimizationCyclesNumber; currentCycleId++) {
+        for (int currentCycleId = 0; currentCycleId < optimizationCyclesNumber; currentCycleId++) {
             optimize(OptimizeStrategyFactory.Type.EXCHANGE_MIN_PARTITION);
             optimize(OptimizeStrategyFactory.Type.EXCHANGE_TWO_CUSTOMERS);
         }
@@ -189,53 +245,7 @@ public class BeeAlgorithmInIDP {
     private void optimize(OptimizeStrategyFactory.Type type) {
         OptimizeStrategy optimizeStrategy = OptimizeStrategyFactory.getStrategy(type);
         optimizeStrategy.optimize(this);
-//        showCurrentSolutionsList(type, solutionsObjectsList);
-    }
-
-    public void initialDemandMatrix() {
-        int i, j;
-
-        int linkId = 0;
-        while (linkId != linksNumber) {
-            // random indexes of demand matrix
-            i = random(0, customersNumber - 2);
-            j = random(i + 1, customersNumber - 1);
-
-            if (demands[i][j] == null) {
-                demands[i][j] = 1.5 * random(lowerLimit, upperLimit);
-                demands[j][i] = demands[i][j];
-                linkId += 1;
-            }
-        }
-
-        int cursor = 0;
-        int positionOfNonzeroDemand = -1;
-        for (i = 0; i < customersNumber; i++) {
-            for (j = 0; j < customersNumber; j++) {
-                if (j > i) {
-                    positionOfNonzeroDemand += 1;
-                    if (demands[i][j] != null) {
-                        demandsAsList.add(demands[i][j]);
-                        positionsOfNonzeroDemands[cursor] = positionOfNonzeroDemand;
-                        customersAssignedToLink.put(cursor, new Integer[]{i, j});
-                        cursor += 1;
-                    }
-                }
-            }
-        }
-
-        prn();
-        prn("Demands matrix: ");
-        new Show<>(demands);
-
-        prn();
-        prn("Non-zero cells from demands matrix: ");
-        new Show<>(demandsAsList);
-
-        prn();
-        prn("Positions of links with non-zero demands: ");
-        new Show<>(positionsOfNonzeroDemands);
-        prn();
+        showCurrentSolutionsList(type, solutionsObjectsList);
     }
 
     /**
@@ -287,7 +297,7 @@ public class BeeAlgorithmInIDP {
         for (int i = 0; i < partitionsNumber; i++) {
             Double d = listWithVolumeCapacity.get(i);
             if (d != null) {
-                violations += listWithVolumeCapacity.get(i) > bandwidth ? penaltyFactorForBadSolutions * (listWithVolumeCapacity.get(i) - bandwidth) : 0;
+                violations += listWithVolumeCapacity.get(i) > bandwidth ? PENALTY_FACTOR_FOR_BAD_SOLUTIONS * (listWithVolumeCapacity.get(i) - bandwidth) : 0;
             }
         }
         totalFitness += violations;
