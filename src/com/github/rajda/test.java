@@ -3,9 +3,9 @@ package com.github.rajda;
 import java.util.Scanner;
 
 public class test {
-    private static final int[] numberCustomers = new int[8];
-    private static int[] numberLinks = new int[8];
-    private static final int iterationsNumber = 1000;
+    private static final int[] numberCustomers = {15, 15, 25, 25, 30, 30, 50, 50};
+    private static final int[] numberLinks = {43, 76, 57, 86, 72, 78, 110, 143};
+    private static final int iterationsNumber = 10;
     private static final int optimizationCyclesNumber = 30;
 
 	 private static final int bandwith = 155;
@@ -17,23 +17,6 @@ public class test {
 //    private static final int upperLimit = 17;
 
     public static void main(String[] args) {
-        numberCustomers[0] = 15;
-        numberLinks[0] = 43;
-        numberCustomers[1] = 15;
-        numberLinks[1] = 76;
-        numberCustomers[2] = 25;
-        numberLinks[2] = 57;
-        numberCustomers[3] = 25;
-        numberLinks[3] = 86;
-        numberCustomers[4] = 30;
-        numberLinks[4] = 72;
-        numberCustomers[5] = 30;
-        numberLinks[5] = 78;
-        numberCustomers[6] = 50;
-        numberLinks[6] = 110;
-        numberCustomers[7] = 50;
-        numberLinks[7] = 143;
-
         int howManyDifferentParameters = numberCustomers.length;
         for (int i = 0; i < howManyDifferentParameters; i++) {
             if (numberCustomers[i] == 0)

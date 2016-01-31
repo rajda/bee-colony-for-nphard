@@ -2,28 +2,17 @@ package com.github.rajda;
 
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Helper {
     private static final String RANDOM_SOLUTIONS = "RANDOM SOLUTIONS: ";
     private static final String EXCHANGE_MIN_PARTITION = "AFTER ASSIGNED EDGES TO MINUMUM PARTITION: ";
     private static final String EXCHANGE_TWO_CUSTOMERS = "AFTER REPLACE EDGES BETWEEN PARTITIONS: ";
-    private static final String FINISH_SOLUTION_1 = "FINISH SOLUTION, numberCustomers: ";
-    private static final String FINISH_SOLUTION_2 = ", numberLinks: ";
+    private static final String FINISH_SOLUTION_1 = "FINISH SOLUTION, customersNumber: ";
+    private static final String FINISH_SOLUTION_2 = ", linksNumber: ";
 
     public static int getCeilFromDouble(double value) {
-        return (value == (int) value) ? (int) value : (int) value + 1;
-    }
-
-    /**
-     * Random value from the range
-     *
-     * @param low - the lowest
-     * @param high - the highest
-     * @return
-     */
-    public static int random(int low, int high) {
-        Random generator = new Random();
-        return (generator.nextInt(high - low + 1) + low);
+        return (int) Math.ceil(value);
     }
 
     /**
@@ -31,23 +20,30 @@ public class Helper {
      *
      * @param low - the lowest
      * @param high - the highest
-     * @param referenceValue
-     * @return
+     * @param referenceValue - undesirable output
+     * @return value inclusive within boundary except referenceValue
      */
     public static int random(int low, int high, int referenceValue) {
-        Random generator = new Random();
         int randomValue;
-
         do {
-            randomValue = (generator.nextInt(high - low + 1) + low);
+            randomValue = random(low, high);
         } while (randomValue == referenceValue);
-
         return randomValue;
     }
 
+    /**
+     * Random value from the range
+     *
+     * @param low - the lowest
+     * @param high - the highest
+     * @return value inclusive within boundary
+     */
+    public static int random(int low, int high) {
+        return ThreadLocalRandom.current().nextInt(low, high + 1);
+    }
+
     public static void prn(Object obj) {
-        if (!obj.equals("empty"))
-            System.out.println(obj);
+        System.out.println(obj);
     }
 
     public static void prn() {
@@ -55,7 +51,7 @@ public class Helper {
     }
 
     public static void showCurrentSolutionsList(int type, ArrayList<Solution> solutionsObjectsList) {
-        Collections.sort(solutionsObjectsList, (o1, o2) -> o1.getFitnessValue().compareTo(o2.getFitnessValue()));
+        Collections.sort(solutionsObjectsList, (o1, o2) -> Integer.compare(o1.getFitnessValue(), o2.getFitnessValue()));
 
         switch (type) {
             case BeeAlgorithmInIDP.BLANK_ENTRY:
@@ -70,7 +66,7 @@ public class Helper {
 //			prn(EXCHANGE_TWO_CUSTOMERS);
 //			break;
             case BeeAlgorithmInIDP.FINISH_SOLUTION:
-                prn(FINISH_SOLUTION_1 + BeeAlgorithmInIDP.numberCustomers + FINISH_SOLUTION_2 + BeeAlgorithmInIDP.numberLinks + ": ");
+                prn(FINISH_SOLUTION_1 + BeeAlgorithmInIDP.customersNumber + FINISH_SOLUTION_2 + BeeAlgorithmInIDP.linksNumber + ": ");
                 for (int s = 0; s < solutionsObjectsList.size(); s++) {
                     prn(solutionsObjectsList.get(s));
                 }

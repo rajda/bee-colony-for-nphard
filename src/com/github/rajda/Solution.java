@@ -5,14 +5,14 @@ import java.util.Arrays;
 import static com.github.rajda.Helper.random;
 
 public class Solution implements Cloneable {
-    private Integer[] solution;
+    private int[] solution;
     private int solutionSize;
     private int fitnessValue;
     private int numberADM;
     private int numberOfMinPart;
     private int numberOfMaxPart;
 
-    public Solution(Integer[] solution, int[] parameters) {
+    public Solution(int[] solution, int[] parameters) {
         this.solution = solution;
         this.solutionSize = solution.length;
         this.fitnessValue = parameters[0];
@@ -36,7 +36,7 @@ public class Solution implements Cloneable {
         this.fitnessValue = fitnessValue;
     }
 
-    public Integer getFitnessValue() {
+    public int getFitnessValue() {
         return fitnessValue;
     }
 
@@ -64,7 +64,7 @@ public class Solution implements Cloneable {
         return numberADM;
     }
 
-    public Integer[] getSolution() {
+    public int[] getSolution() {
         return solution;
     }
 
