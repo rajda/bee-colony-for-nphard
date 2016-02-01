@@ -17,8 +17,10 @@ public class Main {
     public static void main(String[] args) {
         int howManyDifferentParameters = numberCustomers.length;
         for (int i = 0; i < howManyDifferentParameters; i++) {
-            BeeAlgorithmInIDP idp = new BeeAlgorithmInIDP(numberCustomers[i], numberLinks[i], bandwidth, lowerLimit, upperLimit, iterationsNumber, optimizationCyclesNumber);
-            idp.mainSteps();
+            ProblemInitData problemInitData = new ProblemInitData(numberCustomers[i], numberLinks[i], bandwidth, lowerLimit, upperLimit, iterationsNumber, optimizationCyclesNumber);
+            ProblemData problemData = new ProblemData(problemInitData);
+            BeeColonyAlgorithm idp = new BeeColonyAlgorithm(problemData);
+            idp.goThroughSteps();
         }
     }
 }

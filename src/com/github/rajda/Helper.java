@@ -70,13 +70,13 @@ public class Helper {
         Collections.sort(solutionsObjectsList, (o1, o2) -> Integer.compare(o1.getFitnessValue(), o2.getFitnessValue()));
 
         switch (type) {
-            case BeeAlgorithmInIDP.BLANK_ENTRY:
+            case BeeColonyAlgorithm.BLANK_ENTRY:
                 break;
-            case BeeAlgorithmInIDP.INITIAL_RANDOM_SOLUTIONS:
+            case BeeColonyAlgorithm.INITIAL_RANDOM_SOLUTIONS:
 //                prn(RANDOM_SOLUTIONS);
                 break;
-            case BeeAlgorithmInIDP.FINISH_SOLUTION:
-//                prn(FINISH_SOLUTION_1 + BeeAlgorithmInIDP.customersNumber + FINISH_SOLUTION_2 + BeeAlgorithmInIDP.linksNumber + ": ");
+            case BeeColonyAlgorithm.FINISH_SOLUTION:
+//                prn(FINISH_SOLUTION_1 + BeeColonyAlgorithm.customersNumber + FINISH_SOLUTION_2 + BeeColonyAlgorithm.linksNumber + ": ");
                 solutionsObjectsList.forEach(Helper::prn);
                 break;
         }

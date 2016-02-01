@@ -2,22 +2,24 @@ package com.github.rajda;
 
 import java.util.ArrayList;
 
-import static com.github.rajda.BeeAlgorithmInIDP.SCOUT_BEES_NUMBER;
+import static com.github.rajda.BeeColonyAlgorithm.SCOUT_BEES_NUMBER;
 
 /**
  * Created by Jacek on 31.01.2016.
  */
 public class ExchangeMinPartition implements OptimizeStrategy {
-    private BeeAlgorithmInIDP beeAlg;
+    private BeeColonyAlgorithm beeColonyAlgorithm;
+    private ProblemData problemData;
 
     @Override
-    public void optimize(BeeAlgorithmInIDP beeAlg) {
-        this.beeAlg = beeAlg;
+    public void optimize(BeeColonyAlgorithm beeColonyAlgorithm, ProblemData problemData) {
+        this.beeColonyAlgorithm = beeColonyAlgorithm;
+        this.problemData = problemData;
 //        prn((currentCycleId / optimizationCyclesNumber) * 100 + "%");
 
-        for (int iterationId = 0; iterationId < beeAlg.getIterationsNumber(); iterationId++) {
+        for (int iterationId = 0; iterationId < problemData.getProblemInitData().getIterationsNumber(); iterationId++) {
             for (int scoutBeeId = 0; scoutBeeId < SCOUT_BEES_NUMBER; scoutBeeId++) {
-                exchangeMinPartition(beeAlg.getSolutionsObjectsList(), beeAlg.getSolutionsObjectsList().get(scoutBeeId));
+                exchangeMinPartition(problemData.getSolutionsObjectsList(), problemData.getSolutionsObjectsList().get(scoutBeeId));
             }
         }
     }
@@ -35,7 +37,7 @@ public class ExchangeMinPartition implements OptimizeStrategy {
         int user = solution.getRandomUserFromNotMinPartition();
 
         newSolution.getSolution()[user] = minPartition;
-        newSolution.setFitness(beeAlg.countFitness(newSolution.getSolution()));
+        newSolution.setFitness(beeColonyAlgorithm.countFitness(newSolution.getSolution()));
 
         if (newSolution.getFitnessValue() <= solution.getFitnessValue()) {
             solutionsObjectsList.remove(solution);

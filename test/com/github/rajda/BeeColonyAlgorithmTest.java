@@ -7,7 +7,7 @@ import org.junit.Test;
 /**
  * Created by Jacek on 30.01.2016.
  */
-public class BeeAlgorithmInIDPTest {
+public class BeeColonyAlgorithmTest {
 
     @Before
     public void setUp() throws Exception {

@@ -10,7 +10,7 @@ import static com.github.rajda.Helper.*;
  *
  * @author Jacek Rajda
  */
-public class BeeAlgorithmInIDP {
+public class BeeColonyAlgorithm {
     public static final int INITIAL_RANDOM_SOLUTIONS = 0,
             EXCHANGE_MIN_PARTITION = 1,
             EXCHANGE_TWO_CUSTOMERS = 2,
@@ -22,84 +22,34 @@ public class BeeAlgorithmInIDP {
     public static final int BEES_NUMBER_FOR_EACH_SITE = 10;
     public static final int PENALTY_FACTOR_FOR_BAD_SOLUTIONS = 100;
 
-    private int customersNumber;
-    private int linksNumber;
     private int partitionsNumber;
-
-    /**
-     * Number of all edges
-     */
     private int totalEdgesNumber;
 
-    /**
-     * Number of iterations for each optimization method
-     */
-    private int iterationsNumber;
+    private ProblemData problemData;
+    private final ProblemInitData problemInitData;
 
-    /**
-     * Number of optimization cycles
-     */
-    private int optimizationCyclesNumber;
-
-    /**
-     * Bandwidth of each partition
-     */
-    private int bandwidth;
-    private int lowerLimit, upperLimit;
-    private Double[][] demands;
-    private ArrayList<Double> demandsAsList;
-    private Integer[] positionsOfNonzeroDemands;
-    private LinkedHashMap<Integer, Integer[]> customersAssignedToLink;
-    private ArrayList<Solution> solutionsObjectsList;
-
-    public BeeAlgorithmInIDP(int customersNumber, int linksNumber, int bandwidth, int lowerLimit, int upperLimit, int iterationsNumber, int optimizationCyclesNumber) {
-        this.customersNumber = customersNumber;
-        this.linksNumber = linksNumber;
-        this.demands = new Double[customersNumber][customersNumber];
-        this.demandsAsList = new ArrayList<>();
-        this.positionsOfNonzeroDemands = new Integer[linksNumber];
-        this.customersAssignedToLink = new LinkedHashMap<>();
-
-        this.bandwidth = bandwidth;
-        this.lowerLimit = lowerLimit;
-        this.upperLimit = upperLimit;
-        this.iterationsNumber = iterationsNumber;
-        this.optimizationCyclesNumber = optimizationCyclesNumber;
+    public BeeColonyAlgorithm(ProblemData problemData) {
+        this.problemData = problemData;
+        this.problemInitData = problemData.getProblemInitData();
         init();
-    }
-
-    public int getBandwidth() {
-        return bandwidth;
-    }
-
-    public int getCustomersNumber() {
-        return customersNumber;
-    }
-
-    public int getPartitionsNumber() {
-        return partitionsNumber;
-    }
-
-    public int getLinksNumber() {
-        return linksNumber;
-    }
-
-    public int getIterationsNumber() {
-        return iterationsNumber;
-    }
-
-    public ArrayList<Solution> getSolutionsObjectsList() {
-        return solutionsObjectsList;
-    }
-
-    public LinkedHashMap<Integer, Integer[]> getCustomersAssignedToLink() {
-        return customersAssignedToLink;
     }
 
     private void init() {
         initialDemandMatrix();
         initialNumberOfRings();
-        initialNumberOfEdges(customersNumber);
+        initialNumberOfEdges(problemInitData.getCustomersNumber());
+    }
+
+    public ProblemData getProblemData() {
+        return problemData;
+    }
+
+    public ProblemInitData getProblemInitData() {
+        return problemInitData;
+    }
+
+    public int getPartitionsNumber() {
+        return partitionsNumber;
     }
 
     /**
@@ -108,27 +58,27 @@ public class BeeAlgorithmInIDP {
     public void initialDemandMatrix() {
         int i, j;
         int linkId = 0;
-        while (linkId != linksNumber) {
+        while (linkId != problemInitData.getLinksNumber()) {
             // random indexes of demand matrix
-            i = random(0, customersNumber - 2);
-            j = random(i + 1, customersNumber - 1);
-            if (demands[i][j] == null) {
-                demands[i][j] = 1.5 * random(lowerLimit, upperLimit);
-                demands[j][i] = demands[i][j];
+            i = random(0, problemInitData.getCustomersNumber() - 2);
+            j = random(i + 1, problemInitData.getCustomersNumber() - 1);
+            if (problemData.getDemands()[i][j] == null) {
+                problemData.getDemands()[i][j] = 1.5 * random(problemInitData.getLowerLimit(), problemInitData.getUpperLimit());
+                problemData.getDemands()[j][i] = problemData.getDemands()[i][j];
                 linkId += 1;
             }
         }
 
         int cursor = 0;
         int positionOfNonzeroDemand = -1;
-        for (i = 0; i < customersNumber; i++) {
-            for (j = 0; j < customersNumber; j++) {
+        for (i = 0; i < problemInitData.getCustomersNumber(); i++) {
+            for (j = 0; j < problemInitData.getCustomersNumber(); j++) {
                 if (j > i) {
                     positionOfNonzeroDemand += 1;
-                    if (demands[i][j] != null) {
-                        demandsAsList.add(demands[i][j]);
-                        positionsOfNonzeroDemands[cursor] = positionOfNonzeroDemand;
-                        customersAssignedToLink.put(cursor++, new Integer[]{i, j});
+                    if (problemData.getDemands()[i][j] != null) {
+                        problemData.getDemandsAsList().add(problemData.getDemands()[i][j]);
+                        problemData.getPositionsOfNonzeroDemands()[cursor] = positionOfNonzeroDemand;
+                        problemData.getCustomersAssignedToLink().put(cursor++, new Integer[]{i, j});
                     }
                 }
             }
@@ -136,15 +86,15 @@ public class BeeAlgorithmInIDP {
 
         prn();
         prn("Demands matrix: ");
-        new Show<>(demands);
+        new Show<>(problemData.getDemands());
 
         prn();
         prn("Non-zero cells from demands matrix: ");
-        new Show<>(demandsAsList);
+        new Show<>(problemData.getDemandsAsList());
 
         prn();
         prn("Positions of links with non-zero demands: ");
-        new Show<>(positionsOfNonzeroDemands);
+        new Show<>(problemData.getPositionsOfNonzeroDemands());
         prn();
     }
 
@@ -162,15 +112,15 @@ public class BeeAlgorithmInIDP {
         double dSum = 0;
 
         /** Sum up values in matrix of demands */
-        for (int i = 0; i < customersNumber; i++) {
-            for (int j = 0; j < customersNumber; j++) {
-                if (demands[i][j] != null)
-                    dSum += demands[i][j];
+        for (int i = 0; i < problemInitData.getCustomersNumber(); i++) {
+            for (int j = 0; j < problemInitData.getCustomersNumber(); j++) {
+                if (problemData.getDemands()[i][j] != null)
+                    dSum += problemData.getDemands()[i][j];
             }
         }
 
         /** Initial number of partitions */
-        partitionsNumber = getCeilFromDouble((dSum / 2) / bandwidth);
+        partitionsNumber = getCeilFromDouble((dSum / 2) / problemInitData.getBandwidth());
 
         prn();
         prn("Demands sum between customers: " + dSum / 2);
@@ -178,22 +128,21 @@ public class BeeAlgorithmInIDP {
         prn("Initial partitions number: " + partitionsNumber);
     }
 
-    public void mainSteps() {
+    public void goThroughSteps() {
         int linkId;
 
         /** Initial Edges, each edge assigned to the -1st partition */
-        int edge[] = new int[linksNumber];
+        int edge[] = new int[problemInitData.getLinksNumber()];
         Arrays.fill(edge, -1);
 
         /** Initial numberOfEdgesAssigned to each partition */
         int numberOfEdgesAssigned[] = new int[partitionsNumber];
 
-        int[] assignments = new int[linksNumber];
-        solutionsObjectsList = new ArrayList<>();
+        int[] assignments = new int[problemInitData.getLinksNumber()];
 
         linkId = 0;
-        while (linkId != linksNumber) {
-            int randomEdge = random(0, linksNumber - 1);
+        while (linkId != problemInitData.getLinksNumber()) {
+            int randomEdge = random(0, problemInitData.getLinksNumber() - 1);
             if (edge[randomEdge] == -1) {
                 edge[randomEdge] = linkId++;
             }
@@ -203,7 +152,7 @@ public class BeeAlgorithmInIDP {
         for (int scoutBeeId = 0; scoutBeeId < SCOUT_BEES_NUMBER; scoutBeeId++) {
             Arrays.fill(numberOfEdgesAssigned, 0);
 
-            for (linkId = 0; linkId < linksNumber; linkId++) {
+            for (linkId = 0; linkId < problemInitData.getLinksNumber(); linkId++) {
                 int randomPartition = random(0, partitionsNumber - 1);
                 while (numberOfEdgesAssigned[randomPartition] > totalEdgesNumber / partitionsNumber) {
                     randomPartition = random(0, partitionsNumber - 1);
@@ -213,20 +162,20 @@ public class BeeAlgorithmInIDP {
                 assignments[edge[linkId]] = randomPartition;
                 numberOfEdgesAssigned[randomPartition] = numberOfEdgesAssigned[randomPartition] + 1;
             }
-            solutionsObjectsList.add(new Solution(assignments.clone(), countFitness(assignments)));
+            problemData.getSolutionsObjectsList().add(new Solution(assignments.clone(), countFitness(assignments)));
         }
 
         /** Show list of initial solutions */
-        showCurrentSolutionsList(INITIAL_RANDOM_SOLUTIONS, solutionsObjectsList);
+        showCurrentSolutionsList(INITIAL_RANDOM_SOLUTIONS, problemData.getSolutionsObjectsList());
         long startTime = System.nanoTime();
 
         /** Alternating changes between types of optimization */
-        for (int currentCycleId = 0; currentCycleId < optimizationCyclesNumber; currentCycleId++) {
+        for (int currentCycleId = 0; currentCycleId < problemInitData.getOptimizationCyclesNumber(); currentCycleId++) {
             optimize(OptimizeStrategyFactory.Type.EXCHANGE_MIN_PARTITION);
             optimize(OptimizeStrategyFactory.Type.EXCHANGE_TWO_CUSTOMERS);
         }
 
-        showCurrentSolutionsList(FINISH_SOLUTION, solutionsObjectsList);
+        showCurrentSolutionsList(FINISH_SOLUTION, problemData.getSolutionsObjectsList());
 
         long stopTime = System.nanoTime();
         prn("OPTIMIZE TIME: " + (stopTime - startTime) / 1000000 + " ms");
@@ -244,8 +193,8 @@ public class BeeAlgorithmInIDP {
      */
     private void optimize(OptimizeStrategyFactory.Type type) {
         OptimizeStrategy optimizeStrategy = OptimizeStrategyFactory.getStrategy(type);
-        optimizeStrategy.optimize(this);
-        showCurrentSolutionsList(type, solutionsObjectsList);
+        optimizeStrategy.optimize(this, problemData);
+        showCurrentSolutionsList(type, problemData.getSolutionsObjectsList());
     }
 
     /**
@@ -282,9 +231,9 @@ public class BeeAlgorithmInIDP {
             listWithADMs.add(new HashSet<>());
         }
 
-        for (int i = 0; i < linksNumber; i++) {
-            listWithADMs.get(optimalSolution[i]).add(customersAssignedToLink.get(i)[0]);
-            listWithADMs.get(optimalSolution[i]).add(customersAssignedToLink.get(i)[1]);
+        for (int i = 0; i < problemInitData.getLinksNumber(); i++) {
+            listWithADMs.get(optimalSolution[i]).add(problemData.getCustomersAssignedToLink().get(i)[0]);
+            listWithADMs.get(optimalSolution[i]).add(problemData.getCustomersAssignedToLink().get(i)[1]);
         }
 
         /** Add to totalFitness numbers of ADMs from each partition */
@@ -297,7 +246,7 @@ public class BeeAlgorithmInIDP {
         for (int i = 0; i < partitionsNumber; i++) {
             Double d = listWithVolumeCapacity.get(i);
             if (d != null) {
-                violations += listWithVolumeCapacity.get(i) > bandwidth ? PENALTY_FACTOR_FOR_BAD_SOLUTIONS * (listWithVolumeCapacity.get(i) - bandwidth) : 0;
+                violations += listWithVolumeCapacity.get(i) > problemInitData.getBandwidth() ? PENALTY_FACTOR_FOR_BAD_SOLUTIONS * (listWithVolumeCapacity.get(i) - problemInitData.getBandwidth()) : 0;
             }
         }
         totalFitness += violations;
@@ -318,9 +267,9 @@ public class BeeAlgorithmInIDP {
         /** Count capacity volume for each partition */
         Double tempCapacity;
 
-        for (int i = 0; i < linksNumber; i++) {
+        for (int i = 0; i < problemInitData.getLinksNumber(); i++) {
             tempCapacity = listWithVolumeCapacity.get(tempSolution[i]);
-            listWithVolumeCapacity.put(tempSolution[i], tempCapacity == null ? demandsAsList.get(i) : (tempCapacity + demandsAsList.get(i)));
+            listWithVolumeCapacity.put(tempSolution[i], tempCapacity == null ? problemData.getDemandsAsList().get(i) : (tempCapacity + problemData.getDemandsAsList().get(i)));
         }
 
         /** In case of too big number of partitions and any edge is assigned to one of them */
