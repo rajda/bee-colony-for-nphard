@@ -1,15 +1,17 @@
-package com.github.rajda;
+package com.github.rajda.idpProblem;
+
+import com.github.rajda.OptimizeStrategy;
 
 /**
  * Created by Jacek on 31.01.2016.
  */
-public class OptimizeStrategyFactory {
+public class IdpOptimizeStrategyFactory {
     public enum Type {
         EXCHANGE_TWO_CUSTOMERS,
         EXCHANGE_MIN_PARTITION
     }
 
-    private OptimizeStrategyFactory() {
+    private IdpOptimizeStrategyFactory() {
         // never instantiate, use static factory methods
     }
 

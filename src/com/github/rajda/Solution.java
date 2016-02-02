@@ -1,5 +1,7 @@
 package com.github.rajda;
 
+import com.github.rajda.idpProblem.IdpFitness;
+
 import java.util.Arrays;
 
 import static com.github.rajda.Helper.random;

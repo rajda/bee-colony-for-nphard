@@ -1,7 +1,9 @@
-package com.github.rajda;
+package com.github.rajda.idpProblem;
+
+import com.github.rajda.Fitness;
 
 /**
- * Created by Jacek on 31.01.2016.
+ * Quality of IDP solution
  */
 public class IdpFitness extends Fitness {
     private int minPartitionNumber;

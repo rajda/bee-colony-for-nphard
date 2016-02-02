@@ -1,25 +1,29 @@
-package com.github.rajda;
+package com.github.rajda.idpProblem;
+
+import com.github.rajda.idpProblem.IdpProblem;
+import com.github.rajda.OptimizeStrategy;
+import com.github.rajda.Problem;
+import com.github.rajda.Solution;
 
 import java.util.ArrayList;
 
 import static com.github.rajda.BeeColonyAlgorithm.SCOUT_BEES_NUMBER;
 
 /**
- * Created by Jacek on 31.01.2016.
+ * Select and assign random edge to partition with lowest traffic
  */
 public class ExchangeMinPartition implements OptimizeStrategy {
-    private BeeColonyAlgorithm beeColonyAlgorithm;
-    private ProblemData problemData;
+    private IdpProblem idpProblem;
 
     @Override
-    public void optimize(BeeColonyAlgorithm beeColonyAlgorithm, ProblemData problemData) {
-        this.beeColonyAlgorithm = beeColonyAlgorithm;
-        this.problemData = problemData;
+    public void optimize(Problem idpProblem) {
+        this.idpProblem = (IdpProblem) idpProblem;
+        this.idpProblem = (IdpProblem) idpProblem;
 //        prn((currentCycleId / optimizationCyclesNumber) * 100 + "%");
 
-        for (int iterationId = 0; iterationId < problemData.getProblemInitData().getIterationsNumber(); iterationId++) {
+        for (int iterationId = 0; iterationId < idpProblem.getProblemInitData().getIterationsNumber(); iterationId++) {
             for (int scoutBeeId = 0; scoutBeeId < SCOUT_BEES_NUMBER; scoutBeeId++) {
-                exchangeMinPartition(problemData.getSolutionsObjectsList(), problemData.getSolutionsObjectsList().get(scoutBeeId));
+                exchangeMinPartition(idpProblem.getSolutionsList(), idpProblem.getSolutionsList().get(scoutBeeId));
             }
         }
     }
@@ -32,12 +36,11 @@ public class ExchangeMinPartition implements OptimizeStrategy {
      */
     private Solution exchangeMinPartition(ArrayList<Solution> solutionsObjectsList, Solution solution) {
         Solution newSolution = solution.clone();
-        int minPartition = solution.getNumberOfMinPart();
-
         int user = solution.getRandomUserFromNotMinPartition();
 
+        int minPartition = solution.getNumberOfMinPart();
         newSolution.getSolution()[user] = minPartition;
-        newSolution.setFitness(beeColonyAlgorithm.countFitness(newSolution.getSolution()));
+        newSolution.setFitness(idpProblem.countFitness(newSolution.getSolution()));
 
         if (newSolution.getFitnessValue() <= solution.getFitnessValue()) {
             solutionsObjectsList.remove(solution);

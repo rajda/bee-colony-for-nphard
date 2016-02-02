@@ -53,19 +53,6 @@ public class Helper {
         System.out.println();
     }
 
-    public static void showCurrentSolutionsList(OptimizeStrategyFactory.Type type, ArrayList<Solution> solutionsObjectsList) {
-        Collections.sort(solutionsObjectsList, (o1, o2) -> Integer.compare(o1.getFitnessValue(), o2.getFitnessValue()));
-
-        switch (type) {
-            case EXCHANGE_MIN_PARTITION:
-//                prn(EXCHANGE_MIN_PARTITION);
-                break;
-            case EXCHANGE_TWO_CUSTOMERS:
-//                prn(EXCHANGE_TWO_CUSTOMERS);
-                break;
-        }
-    }
-
     public static void showCurrentSolutionsList(int type, ArrayList<Solution> solutionsObjectsList) {
         Collections.sort(solutionsObjectsList, (o1, o2) -> Integer.compare(o1.getFitnessValue(), o2.getFitnessValue()));
 
