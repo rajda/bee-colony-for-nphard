@@ -7,9 +7,17 @@ import java.util.ArrayList;
  */
 public interface Problem {
     void createInitialSolutions();
-    void optimize();
+    Solution optimize(Solution solution);
+//    void optimize();
     Fitness countFitness(int[] solution);
 
     ProblemInitData getProblemInitData();
     ArrayList<Solution> getSolutionsList();
+
+    /**
+     * Put better solution (according to fitness) in place the worse one
+     * @param betterSolution
+     * @param worseSolution
+     */
+    void putInPlace(Solution betterSolution, Solution worseSolution);
 }

@@ -11,8 +11,8 @@ public class Helper {
 //    private static final String RANDOM_SOLUTIONS = "RANDOM SOLUTIONS: ";
 //    private static final String EXCHANGE_MIN_PARTITION = "AFTER ASSIGNED EDGES TO MINUMUM PARTITION: ";
 //    private static final String EXCHANGE_TWO_CUSTOMERS = "AFTER REPLACE EDGES BETWEEN PARTITIONS: ";
-//    private static final String FINISH_SOLUTION_1 = "FINISH SOLUTION, customersNumber: ";
-//    private static final String FINISH_SOLUTION_2 = ", linksNumber: ";
+    private static final String FINISH_SOLUTION_1 = "FINISH SOLUTION, customersNumber: ";
+    private static final String FINISH_SOLUTION_2 = ", linksNumber: ";
 
     public static int getCeilFromDouble(double value) {
         return (int) Math.ceil(value);
@@ -54,7 +54,7 @@ public class Helper {
     }
 
     public static void showCurrentSolutionsList(int type, ArrayList<Solution> solutionsObjectsList) {
-        Collections.sort(solutionsObjectsList, (o1, o2) -> Integer.compare(o1.getFitnessValue(), o2.getFitnessValue()));
+        Collections.sort(solutionsObjectsList, (o1, o2) -> Integer.compare(o1.getFitness().getValue(), o2.getFitness().getValue()));
 
         switch (type) {
             case BeeColonyAlgorithm.BLANK_ENTRY:
@@ -63,7 +63,7 @@ public class Helper {
 //                prn(RANDOM_SOLUTIONS);
                 break;
             case BeeColonyAlgorithm.FINISH_SOLUTION:
-//                prn(FINISH_SOLUTION_1 + BeeColonyAlgorithm.customersNumber + FINISH_SOLUTION_2 + BeeColonyAlgorithm.linksNumber + ": ");
+                prn(FINISH_SOLUTION_1);// + BeeColonyAlgorithm.customersNumber + FINISH_SOLUTION_2 + BeeColonyAlgorithm.linksNumber + ": ");
                 solutionsObjectsList.forEach(Helper::prn);
                 break;
         }

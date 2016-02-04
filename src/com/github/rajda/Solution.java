@@ -1,6 +1,7 @@
 package com.github.rajda;
 
 import com.github.rajda.idpProblem.IdpFitness;
+import com.sun.xml.internal.ws.Closeable;
 
 import java.util.Arrays;
 
@@ -8,13 +9,20 @@ import static com.github.rajda.Helper.random;
 
 public class Solution implements Cloneable {
     private int[] solution;
-    private int solutionSize;
     private IdpFitness idpFitness;
+    private int solutionSize;
+//    private int minPartitionNumber;
+//    private int maxPartitionNumber;
+//    private int admNumber;
 
-    public Solution(int[] solution, Fitness fitness) {
+    public Solution(int[] solution, Fitness idpFitness) {
+//        super(solution, idpFitness);
         this.solution = solution;
+        this.idpFitness = (IdpFitness) idpFitness;
+//        this.minPartitionNumber = idpFitness.getMinPartitionNumber();
+//        this.maxPartitionNumber = idpFitness.getMaxPartitionNumber();
+//        this.admNumber = idpFitness.getAdmNumber();
         this.solutionSize = solution.length;
-        this.idpFitness = (IdpFitness) fitness;
     }
 
     public Solution clone() {
@@ -28,8 +36,20 @@ public class Solution implements Cloneable {
         }
     }
 
-    public int getFitnessValue() {
-        return idpFitness.getValue();
+    public boolean betterThan(Solution comparedWith) {
+        return this.getFitness().getValue() < comparedWith.getFitness().getValue();
+    }
+
+    public Fitness getFitness() {
+        return idpFitness;
+    }
+
+    public void setFitness(Fitness idpFitness) {
+        this.idpFitness = (IdpFitness) idpFitness;
+    }
+
+    public int[] getSolution() {
+        return solution;
     }
 
     public int getNumberOfMinPart() {
@@ -42,10 +62,6 @@ public class Solution implements Cloneable {
 
     public int getNumberOfADM() {
         return idpFitness.getAdmNumber();
-    }
-
-    public int[] getSolution() {
-        return solution;
     }
 
     public int getRandomUserFromNotMinPartition() {
@@ -65,11 +81,12 @@ public class Solution implements Cloneable {
         return indexOfUser;
     }
 
+    @Override
     public String toString() {
-        return getFitnessValue() + ", " + getNumberOfMinPart() + ", " + getNumberOfMaxPart() + " : " + Arrays.toString(solution);
+        return getFitness().getValue() + ", " + getNumberOfMinPart() + ", " + getNumberOfMaxPart() + " : " + Arrays.toString(solution);
     }
-
-    public void setFitness(Fitness idpFitness) {
-        this.idpFitness = (IdpFitness) idpFitness;
-    }
+//    @Override
+//    public String toString() {
+//        return super.toString() + ", " + getNumberOfMinPart() + ", " + getNumberOfMaxPart();
+//    }
 }

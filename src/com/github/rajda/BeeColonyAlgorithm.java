@@ -1,9 +1,12 @@
 package com.github.rajda;
 
-import static com.github.rajda.Helper.*;
+import com.github.rajda.idpProblem.IdpProblem;
+import com.github.rajda.idpProblem.IdpProblemInitData;
+
+import static com.github.rajda.Helper.showCurrentSolutionsList;
 
 /**
- * Bee colony algorithm solving large-scale SONET network
+ * Bee colony algorithm implementation
  *
  * @author Jacek Rajda
  */
@@ -12,17 +15,18 @@ public class BeeColonyAlgorithm {
     public static final int SCOUT_BEES_NUMBER = 10;
     public static final int SELECTED_BEST_SITES_NUMBER = 10;
     public static final int BEES_NUMBER_FOR_EACH_SITE = 10;
-    public static final int PENALTY_FACTOR_FOR_BAD_SOLUTIONS = 100;
 
-    private Problem problem;
-    private final ProblemInitData problemInitData;
+    private IdpProblem problem;
+    private final IdpProblemInitData problemInitData;
 
     public BeeColonyAlgorithm(Problem problem) {
-        this.problem = problem;
-        this.problemInitData = problem.getProblemInitData();
+        this.problem = (IdpProblem) problem;
+        this.problemInitData = (IdpProblemInitData) problem.getProblemInitData();
     }
 
     public void goThroughSteps() {
+        /** Initial food sources for all employed bees */
+
         /** Initial arrangement of scout bees */
         for (int scoutBeeId = 0; scoutBeeId < SCOUT_BEES_NUMBER; scoutBeeId++) {
             problem.createInitialSolutions();
@@ -30,18 +34,49 @@ public class BeeColonyAlgorithm {
 
         /** Show list of initial solutions */
         showCurrentSolutionsList(INITIAL_RANDOM_SOLUTIONS, problem.getSolutionsList());
-//        long startTime = System.nanoTime();
 
-        /** Alternating changes between types of optimization */
-        for (int currentCycleId = 0; currentCycleId < problemInitData.getOptimizationCyclesNumber(); currentCycleId++) {
-            problem.optimize();
+        /** Go through optimization process */
+        for (int problemOptCycleId = 0; problemOptCycleId < problemInitData.getOptimizationCyclesNumber(); problemOptCycleId++) {
+            for (int problemIterationId = 0; problemIterationId < problemInitData.getIterationsNumber(); problemIterationId++) {
+
+                /** Get actually best sites */
+                for (int bestSiteId = 0; bestSiteId < SELECTED_BEST_SITES_NUMBER; bestSiteId++) {
+                    Solution currentSolution = problem.getSolutionsList().get(bestSiteId);
+
+                    /** Modify current best site to find the better one */
+                    for (int i = 0; i < BEES_NUMBER_FOR_EACH_SITE; i++) {
+                        //TODO: exchange two customers
+                        Solution solutionAfterOptimization = problem.optimize(currentSolution);
+
+                        if (solutionAfterOptimization.betterThan(currentSolution)) {
+                            problem.putInPlace(solutionAfterOptimization, currentSolution);
+                            break;
+                        } else if (isLastBee(i)) { // and no modifications with improvement
+                            //TODO: exchange - improve solution in some way
+                            solutionAfterOptimization = problem.doSomething(currentSolution);
+                            if (solutionAfterOptimization.betterThan(currentSolution)) {
+                                problem.putInPlace(solutionAfterOptimization, currentSolution);
+                                break;
+                            }
+                        }
+                    }
+                }
+                for (int scoutBeeId = 0; scoutBeeId < SCOUT_BEES_NUMBER; scoutBeeId++) {
+                    Solution currentSolution = problem.getSolutionsList().get(scoutBeeId);
+
+                    //TODO: exchange min partitions
+                    Solution solutionAfterOptimization = problem.minPartitionOptimize(currentSolution);
+                    if (solutionAfterOptimization.betterThan(currentSolution)) {
+                        problem.putInPlace(solutionAfterOptimization, currentSolution);
+                    }
+                }
+            }
         }
 
         showCurrentSolutionsList(FINISH_SOLUTION, problem.getSolutionsList());
-//
-//        long stopTime = System.nanoTime();
-//        prn("OPTIMIZE TIME: " + (stopTime - startTime) / 1000000 + " ms");
-//        prn();
-//        prn("-----------------------------------------------------------------------------------------");
+    }
+
+    private boolean isLastBee(int beeId) {
+        return beeId == BEES_NUMBER_FOR_EACH_SITE - 1;
     }
 }

@@ -28,4 +28,9 @@ public class IdpFitness extends Fitness {
     public int getAdmNumber() {
         return admNumber;
     }
+
+    @Override
+    public String toString() {
+        return super.toString() + " " + minPartitionNumber + " " + maxPartitionNumber + " " + admNumber;
+    }
 }

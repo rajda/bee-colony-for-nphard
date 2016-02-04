@@ -15,10 +15,18 @@ public class IdpOptimizeStrategyFactory {
         // never instantiate, use static factory methods
     }
 
+    /**
+     * Change name to something like swap food source (only one this kind of method per problem)
+     * @return
+     */
     public static OptimizeStrategy getStrategyExchangeTwoCustomers() {
         return new ExchangeTwoCustomers();
     }
 
+    /**
+     * Extra optimization
+     * @return
+     */
     public static OptimizeStrategy getStrategyExchangeMinPartition() {
         return new ExchangeMinPartition();
     }
