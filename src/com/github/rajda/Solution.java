@@ -11,10 +11,6 @@ public class Solution implements Cloneable {
     private int[] solution;
     private IdpFitness idpFitness;
     private int solutionSize;
-//    private int minPartitionNumber;
-//    private int maxPartitionNumber;
-//    private int admNumber;
-
     public Solution(int[] solution, Fitness idpFitness) {
 //        super(solution, idpFitness);
         this.solution = solution;

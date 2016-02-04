@@ -5,20 +5,25 @@ import com.github.rajda.ProblemInitData;
 /**
  * Created by Jacek on 01.02.2016.
  */
-public class IdpProblemInitData extends ProblemInitData {
+public class IdpProblemInitData implements ProblemInitData {
+    private final int optimizationCyclesNumber;
     private final int customersNumber;
     private final int bandwidth;
     private final int linksNumber;
     private final int lowerLimit;
     private final int upperLimit;
 
-    public IdpProblemInitData(int customersNumber, int linksNumber, int bandwidth, int lowerLimit, int upperLimit, int iterationsNumber, int optimizationCyclesNumber) {
-        super(iterationsNumber, optimizationCyclesNumber);
+    public IdpProblemInitData(int customersNumber, int linksNumber, int bandwidth, int lowerLimit, int upperLimit, int optimizationCyclesNumber) {
+        this.optimizationCyclesNumber = optimizationCyclesNumber;
         this.customersNumber = customersNumber;
         this.linksNumber = linksNumber;
         this.bandwidth = bandwidth;
         this.lowerLimit = lowerLimit;
         this.upperLimit = upperLimit;
+    }
+
+    public int getOptimizationCyclesNumber() {
+        return optimizationCyclesNumber;
     }
 
     public int getCustomersNumber() {

@@ -151,7 +151,7 @@ public class IdpProblem implements Problem {
     }
 
     @Override
-    public void createInitialSolutions() {
+    public void createInitialSolution() {
         Arrays.fill(numberOfEdgesAssigned, 0);
 
         for (int linkId2 = 0; linkId2 < idpProblemInitData.getLinksNumber(); linkId2++) {
