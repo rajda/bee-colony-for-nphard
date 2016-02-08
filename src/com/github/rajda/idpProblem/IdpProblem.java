@@ -3,6 +3,8 @@ package com.github.rajda.idpProblem;
 import com.github.rajda.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static com.github.rajda.Helper.*;
 
@@ -10,9 +12,9 @@ import static com.github.rajda.Helper.*;
  * Intraring Synchronous Optical Network Design Problem
  */
 public class IdpProblem implements Problem {
-    public static final int PENALTY_FACTOR_FOR_BAD_SOLUTIONS = 100;
+    private static final int PENALTY_FACTOR_FOR_BAD_SOLUTIONS = 100;
 
-    private IdpProblemInitData idpProblemInitData;
+    private IdpProblemInitData initData;
     private Double[][] demandMatrix;
     private ArrayList<Double> demandsAsList;
     private Integer[] positionsOfNonzeroDemands;
@@ -24,11 +26,11 @@ public class IdpProblem implements Problem {
     private int[] assignments;
     private int[] edge;
 
-    public IdpProblem(IdpProblemInitData idpProblemInitData) {
-        this.idpProblemInitData = idpProblemInitData;
-        this.demandMatrix = new Double[idpProblemInitData.getCustomersNumber()][idpProblemInitData.getCustomersNumber()];
+    public IdpProblem(IdpProblemInitData initData) {
+        this.initData = initData;
+        this.demandMatrix = new Double[initData.getCustomersNumber()][initData.getCustomersNumber()];
         this.demandsAsList = new ArrayList<>();
-        this.positionsOfNonzeroDemands = new Integer[idpProblemInitData.getLinksNumber()];
+        this.positionsOfNonzeroDemands = new Integer[initData.getLinksNumber()];
         this.customersAssignedToLink = new LinkedHashMap<>();
         this.solutionsList = new ArrayList<>();
         init();
@@ -37,23 +39,22 @@ public class IdpProblem implements Problem {
     private void init() {
         initialDemandMatrix();
         initialNumberOfRings();
-        initialNumberOfEdges(idpProblemInitData.getCustomersNumber());
+        initialNumberOfEdges(initData.getCustomersNumber());
         initialProblem();
     }
 
     private void initialProblem() {
         /** Initial Edges, each edge assigned to the -1st partition */
-        this.edge = new int[idpProblemInitData.getLinksNumber()];
+        this.edge = new int[initData.getLinksNumber()];
         Arrays.fill(edge, -1);
 
         /** Initial numberOfEdgesAssigned to each partition */
         this.numberOfEdgesAssigned = new int[partitionsNumber];
-
-        this.assignments = new int[idpProblemInitData.getLinksNumber()];
+        this.assignments = new int[initData.getLinksNumber()];
 
         int linkId = 0;
-        while (linkId != idpProblemInitData.getLinksNumber()) {
-            int randomEdge = random(0, idpProblemInitData.getLinksNumber() - 1);
+        while (linkId != initData.getLinksNumber()) {
+            int randomEdge = random(0, initData.getLinksNumber() - 1);
             if (edge[randomEdge] == -1) {
                 edge[randomEdge] = linkId++;
             }
@@ -64,12 +65,12 @@ public class IdpProblem implements Problem {
         int i, j;
         int linkId = 0;
         // random assignment links between customers
-        while (linkId != idpProblemInitData.getLinksNumber()) {
+        while (linkId != initData.getLinksNumber()) {
             // random indexes of demand matrix
-            i = random(0, idpProblemInitData.getCustomersNumber() - 2);
-            j = random(i + 1, idpProblemInitData.getCustomersNumber() - 1);
+            i = random(0, initData.getCustomersNumber() - 2);
+            j = random(i + 1, initData.getCustomersNumber() - 1);
             if (demandMatrix[i][j] == null) {
-                demandMatrix[i][j] = 1.5 * random(idpProblemInitData.getLowerLimit(), idpProblemInitData.getUpperLimit());
+                demandMatrix[i][j] = 1.5 * random(initData.getLowerLimit(), initData.getUpperLimit());
                 demandMatrix[j][i] = demandMatrix[i][j];
                 linkId += 1;
             }
@@ -77,8 +78,8 @@ public class IdpProblem implements Problem {
 
         int cursor = 0;
         int positionOfNonzeroDemand = -1;
-        for (i = 0; i < idpProblemInitData.getCustomersNumber(); i++) {
-            for (j = 0; j < idpProblemInitData.getCustomersNumber(); j++) {
+        for (i = 0; i < initData.getCustomersNumber(); i++) {
+            for (j = 0; j < initData.getCustomersNumber(); j++) {
                 if (j > i) {
                     positionOfNonzeroDemand += 1;
                     if (demandMatrix[i][j] != null) {
@@ -89,19 +90,6 @@ public class IdpProblem implements Problem {
                 }
             }
         }
-//
-//        prn();
-//        prn("Demands matrix: ");
-//        new Helper.Show<>(demandMatrix);
-//
-//        prn();
-//        prn("Non-zero cells from demandMatrix matrix: ");
-//        new Helper.Show<>(demandsAsList);
-//
-//        prn();
-//        prn("Positions of links with non-zero demandMatrix: ");
-//        new Helper.Show<>(positionsOfNonzeroDemands);
-//        prn();
     }
 
     /**
@@ -111,20 +99,15 @@ public class IdpProblem implements Problem {
         double dSum = 0;
 
         /** Sum up values in matrix of demandMatrix */
-        for (int i = 0; i < idpProblemInitData.getCustomersNumber(); i++) {
-            for (int j = 0; j < idpProblemInitData.getCustomersNumber(); j++) {
+        for (int i = 0; i < initData.getCustomersNumber(); i++) {
+            for (int j = 0; j < initData.getCustomersNumber(); j++) {
                 if (demandMatrix[i][j] != null)
                     dSum += demandMatrix[i][j];
             }
         }
 
         /** Initial number of partitions */
-        partitionsNumber = getCeilFromDouble((dSum / 2) / idpProblemInitData.getBandwidth());
-//
-//        prn();
-//        prn("Demands sum between customers: " + dSum / 2);
-//        prn();
-//        prn("Initial partitions number: " + partitionsNumber);
+        partitionsNumber = getCeilFromDouble((dSum / 2) / initData.getBandwidth());
     }
 
     /**
@@ -134,8 +117,8 @@ public class IdpProblem implements Problem {
         totalEdgesNumber = numberOfNodes * (numberOfNodes - 1) / 2;
     }
 
-    public IdpProblemInitData getIdpProblemInitData() {
-        return idpProblemInitData;
+    public IdpProblemInitData getInitData() {
+        return initData;
     }
 
     @Override
@@ -154,7 +137,7 @@ public class IdpProblem implements Problem {
     public void createInitialSolution() {
         Arrays.fill(numberOfEdgesAssigned, 0);
 
-        for (int linkId2 = 0; linkId2 < idpProblemInitData.getLinksNumber(); linkId2++) {
+        for (int linkId2 = 0; linkId2 < initData.getLinksNumber(); linkId2++) {
             int randomPartition = random(0, partitionsNumber - 1);
             while (numberOfEdgesAssigned[randomPartition] > totalEdgesNumber / partitionsNumber) {
                 randomPartition = random(0, partitionsNumber - 1);
@@ -164,7 +147,10 @@ public class IdpProblem implements Problem {
             assignments[edge[linkId2]] = randomPartition;
             numberOfEdgesAssigned[randomPartition] = numberOfEdgesAssigned[randomPartition] + 1;
         }
-        solutionsList.add(new Solution(assignments.clone(), countFitness(assignments)));
+
+        Solution initialSolution = new Solution(assignments.clone());
+        initialSolution.setFitness(countFitness(initialSolution));
+        solutionsList.add(initialSolution);
     }
 
     /**
@@ -198,12 +184,12 @@ public class IdpProblem implements Problem {
 
             if (numberOfNewPartition != -1) {
                 // one of two customers of the edge is in the partition
-                newSolution.getSolution()[t] = numberOfNewPartition;
-                newSolution.setFitness(countFitness(newSolution.getSolution()));
+                newSolution.setValueAt(t, numberOfNewPartition);
+                newSolution.setFitness(countFitness(newSolution));
             }
-        } while (++t < idpProblemInitData.getLinksNumber()
-                && getCapacityVolumeForEachPart(newSolution.getSolution()).get(firstPartition) < idpProblemInitData.getBandwidth()
-                && getCapacityVolumeForEachPart(newSolution.getSolution()).get(secondPartition) < idpProblemInitData.getBandwidth());
+        } while (++t < initData.getLinksNumber()
+                && getCapacityVolumeForEachPart(newSolution).get(firstPartition) < initData.getBandwidth()
+                && getCapacityVolumeForEachPart(newSolution).get(secondPartition) < initData.getBandwidth());
 
         return newSolution;
     }
@@ -213,7 +199,7 @@ public class IdpProblem implements Problem {
         int numberOfSecondCustomer = customers[1];
         int numberOfTempEdge;
 
-        for (int i = 0; i < idpProblemInitData.getCustomersNumber(); i++) {
+        for (int i = 0; i < initData.getCustomersNumber(); i++) {
             if (i > numberOfFirstCustomer) {
                 numberOfTempEdge = getNumberOfEdge(new Integer[]{numberOfFirstCustomer, i});
                 int assignedPartition = assignPartitionToEdge(solution, firstPartition, secondPartition, numberOfTempEdge);
@@ -221,7 +207,7 @@ public class IdpProblem implements Problem {
             }
         }
 
-        for (int i = 0; i < idpProblemInitData.getCustomersNumber(); i++) {
+        for (int i = 0; i < initData.getCustomersNumber(); i++) {
             if (i < numberOfSecondCustomer) {
                 numberOfTempEdge = getNumberOfEdge(new Integer[]{i, numberOfSecondCustomer});
                 int assignedPartition = assignPartitionToEdge(solution, firstPartition, secondPartition, numberOfTempEdge);
@@ -258,26 +244,13 @@ public class IdpProblem implements Problem {
     private int assignPartitionToEdge(Solution solution, int firstPartition, int secondPartition, int numberOfTempEdge) {
         if (numberOfTempEdge != -1) {
             // if current edge has a positive value
-            if (solution.getSolution()[numberOfTempEdge] == firstPartition) {
+            if (solution.getValueAt(numberOfTempEdge) == firstPartition) {
                 return firstPartition;
-            } else if (solution.getSolution()[numberOfTempEdge] == secondPartition) {
+            } else if (solution.getValueAt(numberOfTempEdge) == secondPartition) {
                 return secondPartition;
             }
         }
         return -1;
-    }
-
-    public void showCurrentSolutionsList(IdpOptimizeStrategyFactory.Type type) {
-        Collections.sort(solutionsList, (o1, o2) -> Integer.compare(o1.getFitness().getValue(), o2.getFitness().getValue()));
-
-        switch (type) {
-            case EXCHANGE_MIN_PARTITION:
-//                prn(EXCHANGE_MIN_PARTITION);
-                break;
-            case EXCHANGE_TWO_CUSTOMERS:
-//                prn(EXCHANGE_TWO_CUSTOMERS);
-                break;
-        }
     }
 
     /**
@@ -289,25 +262,21 @@ public class IdpProblem implements Problem {
      * [2] - number of maximum partition
      */
     @Override
-    public Fitness countFitness(int[] solution) {
+    public Fitness countFitness(Solution solution) {
         int numberADM = 0;
         int violations = 0;
         int totalFitness = 0;
+        int minPartitionNumber;
+        int maxPartitionNumber;
 
         /** Volume capacity for each partition */
-        HashMap<Integer, Double> listWithVolumeCapacity = getCapacityVolumeForEachPart(solution);
-
-        Map.Entry<Integer, Double> maxEntry = null;
-        Map.Entry<Integer, Double> minEntry = null;
-
-        for (Map.Entry<Integer, Double> entry : listWithVolumeCapacity.entrySet()) {
-            if (maxEntry == null || entry.getValue().compareTo(maxEntry.getValue()) > 0) {
-                maxEntry = entry;
-            }
-            if (minEntry == null || entry.getValue().compareTo(minEntry.getValue()) < 0) {
-                minEntry = entry;
-            }
-        }
+        HashMap<Integer, Double> capacityVolumeMap = getCapacityVolumeForEachPart(solution);
+        List<Integer> partitionsNumberSortedByValue = capacityVolumeMap.entrySet().stream()
+                .sorted(Map.Entry.comparingByValue())
+                .map(e -> e.getKey())
+                .collect(Collectors.toList());
+        minPartitionNumber = partitionsNumberSortedByValue.get(0);
+        maxPartitionNumber = partitionsNumberSortedByValue.get(partitionsNumber - 1);
 
         /** Add to each partition ids of assigned customers */
         ArrayList<Set<Integer>> listWithADMs = new ArrayList<>();
@@ -315,9 +284,9 @@ public class IdpProblem implements Problem {
             listWithADMs.add(new HashSet<>());
         }
 
-        for (int i = 0; i < idpProblemInitData.getLinksNumber(); i++) {
-            listWithADMs.get(solution[i]).add(customersAssignedToLink.get(i)[0]);
-            listWithADMs.get(solution[i]).add(customersAssignedToLink.get(i)[1]);
+        for (int i = 0; i < initData.getLinksNumber(); i++) {
+            listWithADMs.get(solution.getValueAt(i)).add(customersAssignedToLink.get(i)[0]);
+            listWithADMs.get(solution.getValueAt(i)).add(customersAssignedToLink.get(i)[1]);
         }
 
         /** Add to totalFitness numbers of ADMs from each partition */
@@ -328,18 +297,13 @@ public class IdpProblem implements Problem {
 
         /** Add to totalFitness violations for each partition */
         for (int i = 0; i < partitionsNumber; i++) {
-            Double d = listWithVolumeCapacity.get(i);
+            Double d = capacityVolumeMap.get(i);
             if (d != null) {
-                violations += listWithVolumeCapacity.get(i) > idpProblemInitData.getBandwidth() ? PENALTY_FACTOR_FOR_BAD_SOLUTIONS * (listWithVolumeCapacity.get(i) - idpProblemInitData.getBandwidth()) : 0;
+                violations += capacityVolumeMap.get(i) > initData.getBandwidth() ? PENALTY_FACTOR_FOR_BAD_SOLUTIONS * (capacityVolumeMap.get(i) - initData.getBandwidth()) : 0;
             }
         }
         totalFitness += violations;
-        return new IdpFitness(totalFitness, minEntry.getKey(), maxEntry.getKey(), numberADM);
-    }
-
-    @Override
-    public ProblemInitData getProblemInitData() {
-        return idpProblemInitData;
+        return new IdpFitness(totalFitness, minPartitionNumber, maxPartitionNumber, numberADM);
     }
 
     /**
@@ -348,24 +312,19 @@ public class IdpProblem implements Problem {
      * @param tempSolution
      * @return
      */
-    public HashMap<Integer, Double> getCapacityVolumeForEachPart(int[] tempSolution) {
+    public HashMap<Integer, Double> getCapacityVolumeForEachPart(Solution tempSolution) {
         /** Initialization map */
-        HashMap<Integer, Double> listWithVolumeCapacity = new HashMap<>();
+        HashMap<Integer, Double> capacityVolumeMap = new HashMap<>();
 
         /** Count capacity volume for each partition */
-        Double tempCapacity;
-
-        for (int i = 0; i < idpProblemInitData.getLinksNumber(); i++) {
-            tempCapacity = listWithVolumeCapacity.get(tempSolution[i]);
-            listWithVolumeCapacity.put(tempSolution[i], tempCapacity == null ? demandsAsList.get(i) : (tempCapacity + demandsAsList.get(i)));
-        }
+        IntStream.range(0, demandsAsList.size())
+                .forEach(demandId -> capacityVolumeMap.compute(tempSolution.getValueAt(demandId),
+                            (k, v) -> v == null ? demandsAsList.get(demandId) : v + demandsAsList.get(demandId)));
 
         /** In case of too big number of partitions and any edge is assigned to one of them */
         for (int i = 0; i < partitionsNumber; i++) {
-            if (!listWithVolumeCapacity.containsKey(i)) {
-                listWithVolumeCapacity.put(i, 0.0);
-            }
+            capacityVolumeMap.putIfAbsent(i, 0.0);
         }
-        return listWithVolumeCapacity;
+        return capacityVolumeMap;
     }
 }

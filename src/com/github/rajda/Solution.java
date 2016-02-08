@@ -1,7 +1,6 @@
 package com.github.rajda;
 
 import com.github.rajda.idpProblem.IdpFitness;
-import com.sun.xml.internal.ws.Closeable;
 
 import java.util.Arrays;
 
@@ -11,13 +10,8 @@ public class Solution implements Cloneable {
     private int[] solution;
     private IdpFitness idpFitness;
     private int solutionSize;
-    public Solution(int[] solution, Fitness idpFitness) {
-//        super(solution, idpFitness);
+    public Solution(int[] solution) {
         this.solution = solution;
-        this.idpFitness = (IdpFitness) idpFitness;
-//        this.minPartitionNumber = idpFitness.getMinPartitionNumber();
-//        this.maxPartitionNumber = idpFitness.getMaxPartitionNumber();
-//        this.admNumber = idpFitness.getAdmNumber();
         this.solutionSize = solution.length;
     }
 
@@ -44,8 +38,12 @@ public class Solution implements Cloneable {
         this.idpFitness = (IdpFitness) idpFitness;
     }
 
-    public int[] getSolution() {
-        return solution;
+    public int getValueAt(int valueId) {
+        return solution[valueId];
+    }
+
+    public void setValueAt(int valueId, int newValue) {
+        solution[valueId] = newValue;
     }
 
     public int getNumberOfMinPart() {
@@ -54,10 +52,6 @@ public class Solution implements Cloneable {
 
     public int getNumberOfMaxPart() {
         return idpFitness.getMaxPartitionNumber();
-    }
-
-    public int getNumberOfADM() {
-        return idpFitness.getAdmNumber();
     }
 
     public int getRandomUserFromNotMinPartition() {
@@ -70,7 +64,6 @@ public class Solution implements Cloneable {
 
     public int getRandomUser(int partition) {
         int indexOfUser = random(0, solutionSize - 1);
-
         while (solution[indexOfUser] != partition) {
             indexOfUser = random(0, solutionSize - 1);
         }
@@ -81,8 +74,4 @@ public class Solution implements Cloneable {
     public String toString() {
         return getFitness().getValue() + ", " + getNumberOfMinPart() + ", " + getNumberOfMaxPart() + " : " + Arrays.toString(solution);
     }
-//    @Override
-//    public String toString() {
-//        return super.toString() + ", " + getNumberOfMinPart() + ", " + getNumberOfMaxPart();
-//    }
 }

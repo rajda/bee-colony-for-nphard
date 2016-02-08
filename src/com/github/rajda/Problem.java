@@ -8,16 +8,10 @@ import java.util.ArrayList;
 public interface Problem {
     void createInitialSolution();
     Solution optimize(Solution solution);
-//    void optimize();
-    Fitness countFitness(int[] solution);
+    Solution doSomething(Solution currentSolution);
+    Solution minPartitionOptimize(Solution currentSolution);
 
-    ProblemInitData getProblemInitData();
-    ArrayList<Solution> getSolutionsList();
-
-    /**
-     * Put better solution (according to fitness) in place the worse one
-     * @param betterSolution
-     * @param worseSolution
-     */
     void putInPlace(Solution betterSolution, Solution worseSolution);
+    Fitness countFitness(Solution solution);
+    ArrayList<Solution> getSolutionsList();
 }

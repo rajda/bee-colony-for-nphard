@@ -1,8 +1,5 @@
 package com.github.rajda;
 
-import com.github.rajda.idpProblem.IdpProblem;
-import com.github.rajda.idpProblem.IdpProblemInitData;
-
 import static com.github.rajda.Helper.showCurrentSolutionsList;
 
 /**
@@ -12,19 +9,19 @@ import static com.github.rajda.Helper.showCurrentSolutionsList;
  */
 public class BeeColonyAlgorithm {
     public static final int INITIAL_RANDOM_SOLUTIONS = 0, BLANK_ENTRY = 1, FINISH_SOLUTION = 2;
-    public static final int MAXIMUM_CYCLE_NUMBER = 300;
+    private static final int MAXIMUM_CYCLE_NUMBER = 300;
 
-    public static final int EMPLOYED_BEES_GROUPS_NUMBER = 10;
-    public static final int SELECTED_BEST_FOOD_SOURCES_NUMBER = 10;
+    private static final int EMPLOYED_BEES_GROUPS_NUMBER = 10;
+    private static final int SELECTED_BEST_FOOD_SOURCES_NUMBER = 10;
 
-    public static final int EMPLOYED_BEES_NUMBER_PER_FOOD_SOURCE = 10;
-    public static final int ONLOOKER_BEES_NUMBER_PER_FOOD_SOURCE = 1;
-    public static final int SCOUT_BEES_NUMBER_PER_FOOD_SOURCE = 1;
+    private static final int EMPLOYED_BEES_NUMBER_PER_FOOD_SOURCE = 10;
+    private static final int ONLOOKER_BEES_NUMBER_PER_FOOD_SOURCE = 1;
+    private static final int SCOUT_BEES_NUMBER_PER_FOOD_SOURCE = 1;
 
-    private IdpProblem problem;
+    private final Problem problem;
 
     public BeeColonyAlgorithm(Problem problem) {
-        this.problem = (IdpProblem) problem;
+        this.problem = problem;
     }
 
     public void goThroughSteps() {
@@ -38,11 +35,11 @@ public class BeeColonyAlgorithm {
         showCurrentSolutionsList(INITIAL_RANDOM_SOLUTIONS, problem.getSolutionsList());
 
         /** Go through the population optimization cycles (C = 1, 2, 3, ..., MCN) */
-        for (int problemOptCycleId = 0; problemOptCycleId < MAXIMUM_CYCLE_NUMBER; problemOptCycleId++) {
+        for (int populationCycleId = 0; populationCycleId < MAXIMUM_CYCLE_NUMBER; populationCycleId++) {
 
-            /** Get actually best foot sources (the best solutions) */
-            for (int bestSiteId = 0; bestSiteId < SELECTED_BEST_FOOD_SOURCES_NUMBER; bestSiteId++) {
-                Solution currentSolution = problem.getSolutionsList().get(bestSiteId);
+            /** Get actually best foot sources (-> the best solutions) */
+            for (int foodSourceId = 0; foodSourceId < SELECTED_BEST_FOOD_SOURCES_NUMBER; foodSourceId++) {
+                Solution currentSolution = problem.getSolutionsList().get(foodSourceId);
 
                 /** Modify current best food sources to find the better ones */
                 for (int i = 0; i < EMPLOYED_BEES_NUMBER_PER_FOOD_SOURCE; i++) {
@@ -66,7 +63,7 @@ public class BeeColonyAlgorithm {
                 }
 
                 /** Send the scout bee to search area to find/discover a new food source */
-                for (int oBeeId = 0; oBeeId < SCOUT_BEES_NUMBER_PER_FOOD_SOURCE; oBeeId++) {
+                for (int sBeeId = 0; sBeeId < SCOUT_BEES_NUMBER_PER_FOOD_SOURCE; sBeeId++) {
                     Solution solutionAfterOptimization = problem.minPartitionOptimize(currentSolution);
                     if (solutionAfterOptimization.betterThan(currentSolution)) {
                         problem.putInPlace(solutionAfterOptimization, currentSolution);
