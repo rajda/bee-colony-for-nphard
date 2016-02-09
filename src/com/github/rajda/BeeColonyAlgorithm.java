@@ -49,13 +49,13 @@ public class BeeColonyAlgorithm {
 
                 /** Prefer the food sources with a better probability related to their nectar amounts */
                 for (int oBeeId = 0; oBeeId < ONLOOKER_BEES_NUMBER_PER_FOOD_SOURCE; oBeeId++) {
-                    Solution solutionAfterOptimization = problem.doSomething(currentSolution);
+                    Solution solutionAfterOptimization = problem.localSearchProbability(currentSolution);
                     currentSolution = preferBetterFoodSource(solutionAfterOptimization, currentSolution);
                 }
 
                 /** Send the scout bee to search area to find/discover a new food source */
                 for (int sBeeId = 0; sBeeId < SCOUT_BEES_NUMBER_PER_FOOD_SOURCE; sBeeId++) {
-                    Solution solutionAfterOptimization = problem.minPartitionOptimize(currentSolution);
+                    Solution solutionAfterOptimization = problem.localSearchDiscover(currentSolution);
                     currentSolution = preferBetterFoodSource(solutionAfterOptimization, currentSolution);
                 }
             }
@@ -65,7 +65,7 @@ public class BeeColonyAlgorithm {
     }
 
     private Solution preferBetterFoodSource(Solution newFoodSource, Solution currentFoodSource) {
-        /** If the nectar amount in new food source is higher than in previous one */
+        /** If the nectar amount in the new food source is higher than in the current one */
         if (newFoodSource.betterThan(currentFoodSource)) {
             /** Memorize the new food source instead the previous one */
             problem.putInPlace(newFoodSource, currentFoodSource);

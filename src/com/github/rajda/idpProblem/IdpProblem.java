@@ -1,6 +1,9 @@
 package com.github.rajda.idpProblem;
 
-import com.github.rajda.*;
+import com.github.rajda.Fitness;
+import com.github.rajda.OptimizeStrategy;
+import com.github.rajda.Problem;
+import com.github.rajda.Solution;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -121,6 +124,14 @@ public class IdpProblem implements Problem {
         return initData;
     }
 
+    public int getPartitionsNumber() {
+        return partitionsNumber;
+    }
+
+    public LinkedHashMap<Integer, Integer[]> getCustomersAssignedToLink() {
+        return customersAssignedToLink;
+    }
+
     @Override
     public ArrayList<Solution> getSolutionsList() {
         return new ArrayList<>(solutionsList);
@@ -153,104 +164,24 @@ public class IdpProblem implements Problem {
         solutionsList.add(initialSolution);
     }
 
-    /**
-     * Main optimization
-     * @param solution
-     * @return
-     */
     @Override
     public IdpSolution optimize(Solution solution) {
-        return optimize(IdpOptimizeStrategyFactory.Type.EXCHANGE_TWO_CUSTOMERS, solution);
+        return executeStrategy(IdpOptimizeStrategyFactory.Type.EXCHANGE_TWO_CUSTOMERS, solution);
     }
 
-    public IdpSolution minPartitionOptimize(Solution solution) {
-        return optimize(IdpOptimizeStrategyFactory.Type.EXCHANGE_MIN_PARTITION, solution);
+    @Override
+    public IdpSolution localSearchProbability(Solution solution) {
+        return executeStrategy(IdpOptimizeStrategyFactory.Type.EXCHANGE_ACCORDING_PROB, solution);
     }
 
-    public IdpSolution optimize(IdpOptimizeStrategyFactory.Type type, Solution solution) {
+    @Override
+    public IdpSolution localSearchDiscover(Solution solution) {
+        return executeStrategy(IdpOptimizeStrategyFactory.Type.EXCHANGE_MIN_PARTITION, solution);
+    }
+
+    public IdpSolution executeStrategy(IdpOptimizeStrategyFactory.Type type, Solution solution) {
         OptimizeStrategy optimizeStrategy = IdpOptimizeStrategyFactory.getStrategy(type);
         return (IdpSolution) optimizeStrategy.optimize(this, solution);
-    }
-
-    public IdpSolution doSomething(Solution currentSolution) {
-        IdpSolution newSolution = (IdpSolution) currentSolution.clone();
-
-        int t = 0;
-        int firstPartition = random(0, partitionsNumber - 1);
-        int secondPartition = random(0, partitionsNumber - 1, firstPartition);
-        int numberOfNewPartition;
-        do {
-            numberOfNewPartition = getNumberOfNewPartitionForEdge(getCustomers(t), newSolution, firstPartition, secondPartition);
-
-            if (numberOfNewPartition != -1) {
-                // one of two customers of the edge is in the partition
-                newSolution.setValueAt(t, numberOfNewPartition);
-                newSolution.setFitness(countFitness(newSolution));
-            }
-        } while (++t < initData.getLinksNumber()
-                && getCapacityVolumeForEachPart(newSolution).get(firstPartition) < initData.getBandwidth()
-                && getCapacityVolumeForEachPart(newSolution).get(secondPartition) < initData.getBandwidth());
-
-        return newSolution;
-    }
-
-    private int getNumberOfNewPartitionForEdge(Integer[] customers, IdpSolution solution, int firstPartition, int secondPartition) {
-        int numberOfFirstCustomer = customers[0];
-        int numberOfSecondCustomer = customers[1];
-        int numberOfTempEdge;
-
-        for (int i = 0; i < initData.getCustomersNumber(); i++) {
-            if (i > numberOfFirstCustomer) {
-                numberOfTempEdge = getNumberOfEdge(new Integer[]{numberOfFirstCustomer, i});
-                int assignedPartition = assignPartitionToEdge(solution, firstPartition, secondPartition, numberOfTempEdge);
-                if (assignedPartition != -1) return assignedPartition;
-            }
-        }
-
-        for (int i = 0; i < initData.getCustomersNumber(); i++) {
-            if (i < numberOfSecondCustomer) {
-                numberOfTempEdge = getNumberOfEdge(new Integer[]{i, numberOfSecondCustomer});
-                int assignedPartition = assignPartitionToEdge(solution, firstPartition, secondPartition, numberOfTempEdge);
-                if (assignedPartition != -1) return assignedPartition;
-            }
-        }
-        return -1;
-    }
-
-    /**
-     * Appoint partition index for an edge between the two users
-     *
-     * @param edge
-     * @return
-     */
-    private Integer[] getCustomers(Integer edge) {
-        for (Map.Entry<Integer, Integer[]> entry : customersAssignedToLink.entrySet()) {
-            if (edge.equals(entry.getKey())) {
-                return entry.getValue();
-            }
-        }
-        return null;
-    }
-
-    private int getNumberOfEdge(Integer[] customers) {
-        for (Map.Entry<Integer, Integer[]> entry : customersAssignedToLink.entrySet()) {
-            if (customers[0].equals(entry.getValue()[0]) && customers[1].equals(entry.getValue()[1])) {
-                return entry.getKey();
-            }
-        }
-        return -1;
-    }
-
-    private int assignPartitionToEdge(IdpSolution solution, int firstPartition, int secondPartition, int numberOfTempEdge) {
-        if (numberOfTempEdge != -1) {
-            // if current edge has a positive value
-            if (solution.getValueAt(numberOfTempEdge) == firstPartition) {
-                return firstPartition;
-            } else if (solution.getValueAt(numberOfTempEdge) == secondPartition) {
-                return secondPartition;
-            }
-        }
-        return -1;
     }
 
     /**

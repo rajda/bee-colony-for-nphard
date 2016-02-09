@@ -2,9 +2,6 @@ package com.github.rajda;
 
 import java.util.Arrays;
 
-/**
- * Created by Jacek on 02.02.2016.
- */
 public class Solution implements Cloneable {
     protected int[] values;
     protected int valuesLength;

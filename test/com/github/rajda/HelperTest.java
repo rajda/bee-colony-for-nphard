@@ -4,9 +4,6 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-/**
- * Created by Jacek on 30.01.2016.
- */
 public class HelperTest {
     @Test
     public void testGetCeilFromDouble() throws Exception {

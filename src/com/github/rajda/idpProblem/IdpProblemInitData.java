@@ -2,9 +2,6 @@ package com.github.rajda.idpProblem;
 
 import com.github.rajda.ProblemInitData;
 
-/**
- * Created by Jacek on 01.02.2016.
- */
 public class IdpProblemInitData implements ProblemInitData {
     private final int customersNumber;
     private final int bandwidth;

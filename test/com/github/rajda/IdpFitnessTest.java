@@ -4,9 +4,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * Created by Jacek on 31.01.2016.
- */
 public class IdpFitnessTest {
 
     @Before

@@ -2,13 +2,11 @@ package com.github.rajda.idpProblem;
 
 import com.github.rajda.OptimizeStrategy;
 
-/**
- * Created by Jacek on 31.01.2016.
- */
 public class IdpOptimizeStrategyFactory {
     public enum Type {
         EXCHANGE_TWO_CUSTOMERS,
-        EXCHANGE_MIN_PARTITION
+        EXCHANGE_MIN_PARTITION,
+        EXCHANGE_ACCORDING_PROB
     }
 
     private IdpOptimizeStrategyFactory() {
@@ -24,11 +22,19 @@ public class IdpOptimizeStrategyFactory {
     }
 
     /**
-     * Extra optimization
+     * local search
      * @return
      */
     public static OptimizeStrategy getStrategyExchangeMinPartition() {
         return new ExchangeMinPartition();
+    }
+
+    /**
+     * local search
+     * @return
+     */
+    public static OptimizeStrategy getStrategyExchangeAccordingProb() {
+        return new ExchangeAccordingProb();
     }
 
     public static OptimizeStrategy getStrategy(Type type) {
@@ -37,6 +43,8 @@ public class IdpOptimizeStrategyFactory {
                 return getStrategyExchangeTwoCustomers();
             case EXCHANGE_MIN_PARTITION:
                 return getStrategyExchangeMinPartition();
+            case EXCHANGE_ACCORDING_PROB:
+                return getStrategyExchangeAccordingProb();
             default:
                 throw new IllegalStateException("Not implemented strategy yet: " + type);
         }
