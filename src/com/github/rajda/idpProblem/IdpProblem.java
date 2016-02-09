@@ -123,7 +123,7 @@ public class IdpProblem implements Problem {
 
     @Override
     public ArrayList<Solution> getSolutionsList() {
-        return solutionsList;
+        return new ArrayList<>(solutionsList);
     }
 
     @Override
@@ -148,7 +148,7 @@ public class IdpProblem implements Problem {
             numberOfEdgesAssigned[randomPartition] = numberOfEdgesAssigned[randomPartition] + 1;
         }
 
-        Solution initialSolution = new Solution(assignments.clone());
+        IdpSolution initialSolution = new IdpSolution(assignments.clone());
         initialSolution.setFitness(countFitness(initialSolution));
         solutionsList.add(initialSolution);
     }
@@ -159,21 +159,21 @@ public class IdpProblem implements Problem {
      * @return
      */
     @Override
-    public Solution optimize(Solution solution) {
+    public IdpSolution optimize(Solution solution) {
         return optimize(IdpOptimizeStrategyFactory.Type.EXCHANGE_TWO_CUSTOMERS, solution);
     }
 
-    public Solution minPartitionOptimize(Solution solution) {
+    public IdpSolution minPartitionOptimize(Solution solution) {
         return optimize(IdpOptimizeStrategyFactory.Type.EXCHANGE_MIN_PARTITION, solution);
     }
 
-    public Solution optimize(IdpOptimizeStrategyFactory.Type type, Solution solution) {
+    public IdpSolution optimize(IdpOptimizeStrategyFactory.Type type, Solution solution) {
         OptimizeStrategy optimizeStrategy = IdpOptimizeStrategyFactory.getStrategy(type);
-        return optimizeStrategy.optimize(this, solution);
+        return (IdpSolution) optimizeStrategy.optimize(this, solution);
     }
 
-    public Solution doSomething(Solution currentSolution) {
-        Solution newSolution = currentSolution.clone();
+    public IdpSolution doSomething(Solution currentSolution) {
+        IdpSolution newSolution = (IdpSolution) currentSolution.clone();
 
         int t = 0;
         int firstPartition = random(0, partitionsNumber - 1);
@@ -194,7 +194,7 @@ public class IdpProblem implements Problem {
         return newSolution;
     }
 
-    private int getNumberOfNewPartitionForEdge(Integer[] customers, Solution solution, int firstPartition, int secondPartition) {
+    private int getNumberOfNewPartitionForEdge(Integer[] customers, IdpSolution solution, int firstPartition, int secondPartition) {
         int numberOfFirstCustomer = customers[0];
         int numberOfSecondCustomer = customers[1];
         int numberOfTempEdge;
@@ -241,7 +241,7 @@ public class IdpProblem implements Problem {
         return -1;
     }
 
-    private int assignPartitionToEdge(Solution solution, int firstPartition, int secondPartition, int numberOfTempEdge) {
+    private int assignPartitionToEdge(IdpSolution solution, int firstPartition, int secondPartition, int numberOfTempEdge) {
         if (numberOfTempEdge != -1) {
             // if current edge has a positive value
             if (solution.getValueAt(numberOfTempEdge) == firstPartition) {
@@ -256,18 +256,19 @@ public class IdpProblem implements Problem {
     /**
      * Evaluate quality of solution
      *
-     * @param solution
+     * @param solutionI
      * @return [0] - total fitness<br>
      * [1] - number of minimum partition<br>
      * [2] - number of maximum partition
      */
     @Override
-    public Fitness countFitness(Solution solution) {
+    public Fitness countFitness(Solution solutionI) {
         int numberADM = 0;
         int violations = 0;
         int totalFitness = 0;
         int minPartitionNumber;
         int maxPartitionNumber;
+        IdpSolution solution = (IdpSolution) solutionI;
 
         /** Volume capacity for each partition */
         HashMap<Integer, Double> capacityVolumeMap = getCapacityVolumeForEachPart(solution);
@@ -312,7 +313,7 @@ public class IdpProblem implements Problem {
      * @param tempSolution
      * @return
      */
-    public HashMap<Integer, Double> getCapacityVolumeForEachPart(Solution tempSolution) {
+    public HashMap<Integer, Double> getCapacityVolumeForEachPart(IdpSolution tempSolution) {
         /** Initialization map */
         HashMap<Integer, Double> capacityVolumeMap = new HashMap<>();
 

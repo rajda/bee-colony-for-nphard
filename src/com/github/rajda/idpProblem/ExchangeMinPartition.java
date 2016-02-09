@@ -10,12 +10,12 @@ import com.github.rajda.Solution;
 public class ExchangeMinPartition implements OptimizeStrategy {
 
     @Override
-    public Solution optimize(Problem problem, Solution solution) {
+    public IdpSolution optimize(Problem problem, Solution solution) {
         IdpProblem idpProblem = (IdpProblem) problem;
-        Solution newSolution = solution.clone();
+        IdpSolution newSolution = (IdpSolution) solution.clone();
 
-        int user = solution.getRandomUserFromNotMinPartition();
-        int minPartition = solution.getNumberOfMinPart();
+        int user = newSolution.getRandomUserFromNotMinPartition();
+        int minPartition = newSolution.getNumberOfMinPart();
 
         newSolution.setValueAt(user, minPartition);
         newSolution.setFitness(idpProblem.countFitness(newSolution));

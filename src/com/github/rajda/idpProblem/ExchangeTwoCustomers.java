@@ -14,12 +14,12 @@ public class ExchangeTwoCustomers implements OptimizeStrategy {
     @Override
     public Solution optimize(Problem problem, Solution solution) {
         IdpProblem idpProblem = (IdpProblem) problem;
-        Solution newSolution = solution.clone();
+        IdpSolution newSolution = (IdpSolution) solution.clone();
         int firstPartition = newSolution.getValueAt(random(0, idpProblem.getInitData().getLinksNumber() - 1));
         int secondPartition = newSolution.getValueAt(random(0, idpProblem.getInitData().getLinksNumber() - 1, firstPartition));
 
-        int firstUser = solution.getRandomUser(firstPartition);
-        int secondUser = solution.getRandomUser(secondPartition);
+        int firstUser = newSolution.getRandomUser(firstPartition);
+        int secondUser = newSolution.getRandomUser(secondPartition);
 
         newSolution.setValueAt(firstUser, secondPartition);
         newSolution.setValueAt(secondUser, firstPartition);

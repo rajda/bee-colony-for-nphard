@@ -1,24 +1,24 @@
 package com.github.rajda;
 
-import com.github.rajda.idpProblem.IdpFitness;
-
 import java.util.Arrays;
 
-import static com.github.rajda.Helper.random;
-
+/**
+ * Created by Jacek on 02.02.2016.
+ */
 public class Solution implements Cloneable {
-    private int[] solution;
-    private IdpFitness idpFitness;
-    private int solutionSize;
-    public Solution(int[] solution) {
-        this.solution = solution;
-        this.solutionSize = solution.length;
+    protected int[] values;
+    protected int valuesLength;
+    protected Fitness fitness;
+
+    public Solution(int[] values) {
+        this.values = values;
+        this.valuesLength = values.length;
     }
 
     public Solution clone() {
         try {
             Solution cloneSolution = (Solution) super.clone();
-            cloneSolution.solution = solution.clone();
+            cloneSolution.values = values.clone();
             return cloneSolution;
         } catch (CloneNotSupportedException e) {
             e.printStackTrace();
@@ -26,52 +26,28 @@ public class Solution implements Cloneable {
         }
     }
 
+    public Fitness getFitness() {
+        return fitness;
+    }
+
+    public void setFitness(Fitness fitness) {
+        this.fitness = fitness;
+    }
+
     public boolean betterThan(Solution comparedWith) {
         return this.getFitness().getValue() < comparedWith.getFitness().getValue();
     }
 
-    public Fitness getFitness() {
-        return idpFitness;
-    }
-
-    public void setFitness(Fitness idpFitness) {
-        this.idpFitness = (IdpFitness) idpFitness;
-    }
-
     public int getValueAt(int valueId) {
-        return solution[valueId];
+        return values[valueId];
     }
 
     public void setValueAt(int valueId, int newValue) {
-        solution[valueId] = newValue;
+        values[valueId] = newValue;
     }
 
-    public int getNumberOfMinPart() {
-        return idpFitness.getMinPartitionNumber();
-    }
-
-    public int getNumberOfMaxPart() {
-        return idpFitness.getMaxPartitionNumber();
-    }
-
-    public int getRandomUserFromNotMinPartition() {
-        int indexOfUser = random(0, solutionSize - 1);
-        while (solution[indexOfUser] == getNumberOfMinPart()) {
-            indexOfUser = random(0, solutionSize - 1);
-        }
-        return indexOfUser;
-    }
-
-    public int getRandomUser(int partition) {
-        int indexOfUser = random(0, solutionSize - 1);
-        while (solution[indexOfUser] != partition) {
-            indexOfUser = random(0, solutionSize - 1);
-        }
-        return indexOfUser;
-    }
-
-    @Override
     public String toString() {
-        return getFitness().getValue() + ", " + getNumberOfMinPart() + ", " + getNumberOfMaxPart() + " : " + Arrays.toString(solution);
+        return fitness.getValue() + " " + Arrays.toString(values);
     }
 }
+

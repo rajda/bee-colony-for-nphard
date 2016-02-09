@@ -44,34 +44,34 @@ public class BeeColonyAlgorithm {
                 /** Modify current best food sources to find the better ones */
                 for (int i = 0; i < EMPLOYED_BEES_NUMBER_PER_FOOD_SOURCE; i++) {
                     Solution solutionAfterOptimization = problem.optimize(currentSolution);
-
-                    /** If the nectar amount in new food source is higher than in previous one */
-                    if (solutionAfterOptimization.betterThan(currentSolution)) {
-                        /** Memorize the new food source instead the previous one */
-                        problem.putInPlace(solutionAfterOptimization, currentSolution);
-                        break;
-                    }
+                    currentSolution = preferBetterFoodSource(solutionAfterOptimization, currentSolution);
                 }
 
                 /** Prefer the food sources with a better probability related to their nectar amounts */
                 for (int oBeeId = 0; oBeeId < ONLOOKER_BEES_NUMBER_PER_FOOD_SOURCE; oBeeId++) {
                     Solution solutionAfterOptimization = problem.doSomething(currentSolution);
-                    if (solutionAfterOptimization.betterThan(currentSolution)) {
-                        problem.putInPlace(solutionAfterOptimization, currentSolution);
-                        break;
-                    }
+                    currentSolution = preferBetterFoodSource(solutionAfterOptimization, currentSolution);
                 }
 
                 /** Send the scout bee to search area to find/discover a new food source */
                 for (int sBeeId = 0; sBeeId < SCOUT_BEES_NUMBER_PER_FOOD_SOURCE; sBeeId++) {
                     Solution solutionAfterOptimization = problem.minPartitionOptimize(currentSolution);
-                    if (solutionAfterOptimization.betterThan(currentSolution)) {
-                        problem.putInPlace(solutionAfterOptimization, currentSolution);
-                    }
+                    currentSolution = preferBetterFoodSource(solutionAfterOptimization, currentSolution);
                 }
             }
         }
 
         showCurrentSolutionsList(FINISH_SOLUTION, problem.getSolutionsList());
+    }
+
+    private Solution preferBetterFoodSource(Solution newFoodSource, Solution currentFoodSource) {
+        /** If the nectar amount in new food source is higher than in previous one */
+        if (newFoodSource.betterThan(currentFoodSource)) {
+            /** Memorize the new food source instead the previous one */
+            problem.putInPlace(newFoodSource, currentFoodSource);
+            return newFoodSource;
+        } else {
+            return currentFoodSource;
+        }
     }
 }
