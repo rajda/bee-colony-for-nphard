@@ -17,12 +17,12 @@ import static com.github.rajda.Helper.*;
 public class IdpProblem implements Problem {
     private static final int PENALTY_FACTOR_FOR_BAD_SOLUTIONS = 100;
 
-    private IdpProblemInitData initData;
-    private Double[][] demandMatrix;
-    private ArrayList<Double> demandsAsList;
-    private Integer[] positionsOfNonzeroDemands;
-    private LinkedHashMap<Integer, Integer[]> customersAssignedToLink;
-    private ArrayList<Solution> solutionsList;
+    private final IdpProblemInitData initData;
+    private final Double[][] demandMatrix;
+    private final ArrayList<Double> demandsAsList;
+    private final Integer[] positionsOfNonzeroDemands;
+    private final LinkedHashMap<Integer, Integer[]> customersAssignedToLink;
+    private final ArrayList<Solution> solutionsList;
     private int partitionsNumber;
     private int totalEdgesNumber;
     private int[] numberOfEdgesAssigned;
@@ -64,7 +64,7 @@ public class IdpProblem implements Problem {
         }
     }
 
-    public void initialDemandMatrix() {
+    private void initialDemandMatrix() {
         int i, j;
         int linkId = 0;
         // random assignment links between customers
@@ -179,7 +179,7 @@ public class IdpProblem implements Problem {
         return executeStrategy(IdpOptimizeStrategyFactory.Type.EXCHANGE_MIN_PARTITION, solution);
     }
 
-    public IdpSolution executeStrategy(IdpOptimizeStrategyFactory.Type type, Solution solution) {
+    private IdpSolution executeStrategy(IdpOptimizeStrategyFactory.Type type, Solution solution) {
         OptimizeStrategy optimizeStrategy = IdpOptimizeStrategyFactory.getStrategy(type);
         return (IdpSolution) optimizeStrategy.optimize(this, solution);
     }
@@ -205,7 +205,7 @@ public class IdpProblem implements Problem {
         HashMap<Integer, Double> capacityVolumeMap = getCapacityVolumeForEachPart(solution);
         List<Integer> partitionsNumberSortedByValue = capacityVolumeMap.entrySet().stream()
                 .sorted(Map.Entry.comparingByValue())
-                .map(e -> e.getKey())
+                .map(Map.Entry::getKey)
                 .collect(Collectors.toList());
         minPartitionNumber = partitionsNumberSortedByValue.get(0);
         maxPartitionNumber = partitionsNumberSortedByValue.get(partitionsNumber - 1);

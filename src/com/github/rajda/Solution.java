@@ -7,7 +7,7 @@ public class Solution implements Cloneable {
     protected int valuesLength;
     protected Fitness fitness;
 
-    public Solution(int[] values) {
+    protected Solution(int[] values) {
         this.values = values;
         this.valuesLength = values.length;
     }

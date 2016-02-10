@@ -3,7 +3,7 @@ package com.github.rajda;
 import com.github.rajda.idpProblem.IdpProblem;
 import com.github.rajda.idpProblem.IdpProblemInitData;
 
-public class Main {
+class Main {
     private static final int[] numberCustomers = {15, 15, 25, 25, 30, 30, 50, 50};
     private static final int[] numberLinks = {43, 76, 57, 86, 72, 78, 110, 143};
 

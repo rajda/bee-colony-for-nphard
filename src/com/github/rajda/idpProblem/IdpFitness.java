@@ -6,9 +6,9 @@ import com.github.rajda.Fitness;
  * Quality of IDP solution
  */
 public class IdpFitness extends Fitness {
-    private int minPartitionNumber;
-    private int maxPartitionNumber;
-    private int admNumber;
+    private final int minPartitionNumber;
+    private final int maxPartitionNumber;
+    private final int admNumber;
 
     public IdpFitness(int totalFitness, int minPartitionNumber, int maxPartitionNumber, int admNumber) {
         super(totalFitness);

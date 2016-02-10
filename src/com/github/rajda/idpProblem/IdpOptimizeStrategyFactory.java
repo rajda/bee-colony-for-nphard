@@ -17,7 +17,7 @@ public class IdpOptimizeStrategyFactory {
      * Change name to something like swap food source (only one this kind of method per problem)
      * @return
      */
-    public static OptimizeStrategy getStrategyExchangeTwoCustomers() {
+    private static OptimizeStrategy getStrategyExchangeTwoCustomers() {
         return new ExchangeTwoCustomers();
     }
 
@@ -25,7 +25,7 @@ public class IdpOptimizeStrategyFactory {
      * local search
      * @return
      */
-    public static OptimizeStrategy getStrategyExchangeMinPartition() {
+    private static OptimizeStrategy getStrategyExchangeMinPartition() {
         return new ExchangeMinPartition();
     }
 
@@ -33,7 +33,7 @@ public class IdpOptimizeStrategyFactory {
      * local search
      * @return
      */
-    public static OptimizeStrategy getStrategyExchangeAccordingProb() {
+    private static OptimizeStrategy getStrategyExchangeAccordingProb() {
         return new ExchangeAccordingProb();
     }
 

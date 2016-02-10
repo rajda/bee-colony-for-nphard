@@ -17,7 +17,7 @@ public class IdpSolution extends Solution {
         return ((IdpFitness) fitness).getMinPartitionNumber();
     }
 
-    public int getNumberOfMaxPart() {
+    private int getNumberOfMaxPart() {
         return ((IdpFitness) fitness).getMaxPartitionNumber();
     }
 

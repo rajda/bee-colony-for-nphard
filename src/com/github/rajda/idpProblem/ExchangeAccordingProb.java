@@ -12,7 +12,7 @@ import static com.github.rajda.Helper.random;
  * Select and assign edge to partition according to probability
  */
 public class ExchangeAccordingProb implements OptimizeStrategy {
-    IdpProblem idpProblem;
+    private IdpProblem idpProblem;
 
     @Override
     public IdpSolution optimize(Problem problem, Solution solution) {

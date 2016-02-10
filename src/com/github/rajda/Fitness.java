@@ -1,9 +1,9 @@
 package com.github.rajda;
 
 public class Fitness {
-    private int value;
+    private final int value;
 
-    public Fitness(int value) {
+    protected Fitness(int value) {
         this.value = value;
     }
 

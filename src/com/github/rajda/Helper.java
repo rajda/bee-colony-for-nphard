@@ -9,7 +9,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class Helper {
 //    private static final String RANDOM_SOLUTIONS = "RANDOM SOLUTIONS: ";
-//    private static final String EXCHANGE_MIN_PARTITION = "AFTER ASSIGNED EDGES TO MINUMUM PARTITION: ";
+//    private static final String EXCHANGE_MIN_PARTITION = "AFTER ASSIGNED EDGES TO MINIMUM PARTITION: ";
 //    private static final String EXCHANGE_TWO_CUSTOMERS = "AFTER REPLACE EDGES BETWEEN PARTITIONS: ";
     private static final String FINISH_SOLUTION_1 = "FINISH SOLUTION, customersNumber: ";
     private static final String FINISH_SOLUTION_2 = ", linksNumber: ";
