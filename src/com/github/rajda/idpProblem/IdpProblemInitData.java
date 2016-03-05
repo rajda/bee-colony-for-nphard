@@ -36,4 +36,9 @@ public class IdpProblemInitData implements ProblemInitData {
     public int getUpperLimit() {
         return upperLimit;
     }
+
+    @Override
+    public String toString() {
+        return "CustomersNumber: " + customersNumber + ", linksNumber: " + linksNumber + ", bandwidth: " + bandwidth + ", lowerLimit: " + lowerLimit + ", upperLimit: " + upperLimit;
+    }
 }

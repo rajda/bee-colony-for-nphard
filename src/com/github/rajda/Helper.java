@@ -1,19 +1,10 @@
 package com.github.rajda;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashMap;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Helper {
-//    private static final String RANDOM_SOLUTIONS = "RANDOM SOLUTIONS: ";
-//    private static final String EXCHANGE_MIN_PARTITION = "AFTER ASSIGNED EDGES TO MINIMUM PARTITION: ";
-//    private static final String EXCHANGE_TWO_CUSTOMERS = "AFTER REPLACE EDGES BETWEEN PARTITIONS: ";
-    private static final String FINISH_SOLUTION_1 = "FINISH SOLUTION, customersNumber: ";
-    private static final String FINISH_SOLUTION_2 = ", linksNumber: ";
-
     public static int getCeilFromDouble(double value) {
         return (int) Math.ceil(value);
     }
@@ -45,28 +36,18 @@ public class Helper {
         return ThreadLocalRandom.current().nextInt(low, high + 1);
     }
 
+    public static void showSolutionsList(ArrayList<Solution> solutionsObjectsList) {
+        Collections.sort(solutionsObjectsList, (o1, o2) -> Integer.compare(o1.getFitness().getValue(), o2.getFitness().getValue()));
+        solutionsObjectsList.forEach(Helper::prn);
+        prn();
+    }
+
     public static void prn(Object obj) {
         System.out.println(obj);
     }
 
     public static void prn() {
         System.out.println();
-    }
-
-    public static void showCurrentSolutionsList(int type, ArrayList<Solution> solutionsObjectsList) {
-        Collections.sort(solutionsObjectsList, (o1, o2) -> Integer.compare(o1.getFitness().getValue(), o2.getFitness().getValue()));
-
-        switch (type) {
-            case BeeColonyAlgorithm.BLANK_ENTRY:
-                break;
-            case BeeColonyAlgorithm.INITIAL_RANDOM_SOLUTIONS:
-//                prn(RANDOM_SOLUTIONS);
-                break;
-            case BeeColonyAlgorithm.FINISH_SOLUTION:
-                prn(FINISH_SOLUTION_1);// + BeeColonyAlgorithm.customersNumber + FINISH_SOLUTION_2 + BeeColonyAlgorithm.linksNumber + ": ");
-                solutionsObjectsList.forEach(Helper::prn);
-                break;
-        }
     }
 
     static class Show<T> {

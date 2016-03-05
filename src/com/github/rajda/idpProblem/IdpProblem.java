@@ -259,4 +259,9 @@ public class IdpProblem implements Problem {
         }
         return capacityVolumeMap;
     }
+
+    @Override
+    public String toString() {
+        return initData.toString();
+    }
 }

@@ -15,9 +15,9 @@ class Main {
         int howManyDifferentParameters = numberCustomers.length;
         for (int i = 0; i < howManyDifferentParameters; i++) {
             IdpProblemInitData idpProblemInitData = new IdpProblemInitData(numberCustomers[i], numberLinks[i], bandwidth, lowerLimit, upperLimit);
-            IdpProblem idpProblem = new IdpProblem(idpProblemInitData);
-            BeeColonyAlgorithm idp = new BeeColonyAlgorithm(idpProblem);
-            idp.goThroughSteps();
+            Problem problem = new IdpProblem(idpProblemInitData);
+            BeeColonyAlgorithm bca = new BeeColonyAlgorithm(problem);
+            bca.goThroughSteps();
         }
     }
 }

@@ -8,7 +8,7 @@ public interface Problem {
     Solution localSearchProbability(Solution currentSolution);
     Solution localSearchDiscover(Solution currentSolution);
 
-    void putInPlace(Solution betterSolution, Solution worseSolution);
+    void putInPlace(Solution betterSolution, Solution currentSolution);
     Fitness countFitness(Solution solution);
     ArrayList<Solution> getSolutionsList();
 }
