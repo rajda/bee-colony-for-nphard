@@ -15,14 +15,14 @@ public class ExchangeTwoCustomers implements OptimizeStrategy {
     public Solution optimize(Problem problem, Solution solution) {
         IdpProblem idpProblem = (IdpProblem) problem;
         IdpSolution newSolution = (IdpSolution) solution.clone();
-        int firstPartition = newSolution.getValueAt(random(0, idpProblem.getInitData().getLinksNumber() - 1));
-        int secondPartition = newSolution.getValueAt(random(0, idpProblem.getInitData().getLinksNumber() - 1, firstPartition));
+        int firstPartition = newSolution.getValueAt(random(0, idpProblem.getInitData().getLinkCount() - 1));
+        int secondPartition = newSolution.getValueAt(random(0, idpProblem.getInitData().getLinkCount() - 1, firstPartition));
 
-        int firstUser = newSolution.getRandomUser(firstPartition);
-        int secondUser = newSolution.getRandomUser(secondPartition);
+        int firstUserId = newSolution.getRandomUser(firstPartition);
+        int secondUserId = newSolution.getRandomUser(secondPartition);
 
-        newSolution.setValueAt(firstUser, secondPartition);
-        newSolution.setValueAt(secondUser, firstPartition);
+        newSolution.setValueAt(firstUserId, secondPartition);
+        newSolution.setValueAt(secondUserId, firstPartition);
         newSolution.setFitness(idpProblem.countFitness(newSolution));
         return newSolution;
     }

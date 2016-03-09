@@ -6,27 +6,27 @@ import com.github.rajda.Fitness;
  * Quality of IDP solution
  */
 public class IdpFitness extends Fitness {
-    private final int minPartitionNumber;
-    private final int maxPartitionNumber;
-    private final int admNumber;
+    private final int minPartitionId;
+    private final int maxPartitionId;
+    private final int admCount;
 
-    public IdpFitness(int totalFitness, int minPartitionNumber, int maxPartitionNumber, int admNumber) {
+    public IdpFitness(int totalFitness, int minPartitionId, int maxPartitionId, int admCount) {
         super(totalFitness);
-        this.minPartitionNumber = minPartitionNumber;
-        this.maxPartitionNumber = maxPartitionNumber;
-        this.admNumber = admNumber;
+        this.minPartitionId = minPartitionId;
+        this.maxPartitionId = maxPartitionId;
+        this.admCount = admCount;
     }
 
-    public int getMinPartitionNumber() {
-        return minPartitionNumber;
+    public int getMinPartitionId() {
+        return minPartitionId;
     }
 
-    public int getMaxPartitionNumber() {
-        return maxPartitionNumber;
+    public int getMaxPartitionId() {
+        return maxPartitionId;
     }
 
     @Override
     public String toString() {
-        return super.toString() + " " + minPartitionNumber + " " + maxPartitionNumber + " " + admNumber;
+        return super.toString() + " " + minPartitionId + " " + maxPartitionId + " " + admCount;
     }
 }

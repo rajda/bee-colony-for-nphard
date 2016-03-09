@@ -4,7 +4,8 @@ import com.github.rajda.OptimizeStrategy;
 import com.github.rajda.Problem;
 import com.github.rajda.Solution;
 
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import static com.github.rajda.Helper.random;
 
@@ -13,84 +14,96 @@ import static com.github.rajda.Helper.random;
  */
 public class ExchangeAccordingProb implements OptimizeStrategy {
     private IdpProblem idpProblem;
+    private IdpSolution newSolution;
 
     @Override
     public IdpSolution optimize(Problem problem, Solution solution) {
         idpProblem = (IdpProblem) problem;
-        IdpSolution newSolution = (IdpSolution) solution.clone();
+        newSolution = (IdpSolution) solution.clone();
 
-        int t = 0;
-        int firstPartition = random(0, idpProblem.getPartitionsNumber() - 1);
-        int secondPartition = random(0, idpProblem.getPartitionsNumber() - 1, firstPartition);
-        int numberOfNewPartition;
+        int linkId = 0;
+        int firstPartition = random(0, idpProblem.getPartitionCount() - 1);
+        int secondPartition = random(0, idpProblem.getPartitionCount() - 1, firstPartition);
+        int newPartitionId;
         do {
-            numberOfNewPartition = getNumberOfNewPartitionForEdge(getCustomers(t), newSolution, firstPartition, secondPartition);
+            newPartitionId = getNewPartitionIdForLink(getCustomers(linkId), firstPartition, secondPartition);
 
-            if (numberOfNewPartition != -1) {
+            if (newPartitionId != -1) {
                 // one of two customers of the edge is in the partition
-                newSolution.setValueAt(t, numberOfNewPartition);
+                newSolution.setValueAt(linkId, newPartitionId);
                 newSolution.setFitness(idpProblem.countFitness(newSolution));
             }
-        } while (++t < idpProblem.getInitData().getLinksNumber()
+        } while (++linkId < idpProblem.getInitData().getLinkCount()
                 && idpProblem.getCapacityVolumeForEachPart(newSolution).get(firstPartition) < idpProblem.getInitData().getBandwidth()
                 && idpProblem.getCapacityVolumeForEachPart(newSolution).get(secondPartition) < idpProblem.getInitData().getBandwidth());
 
         return newSolution;
     }
 
-    private int getNumberOfNewPartitionForEdge(Integer[] customers, IdpSolution solution, int firstPartition, int secondPartition) {
-        int numberOfFirstCustomer = customers[0];
-        int numberOfSecondCustomer = customers[1];
-        int numberOfTempEdge;
-
-        for (int i = 0; i < idpProblem.getInitData().getCustomersNumber(); i++) {
-            if (i > numberOfFirstCustomer) {
-                numberOfTempEdge = getNumberOfEdge(new Integer[]{numberOfFirstCustomer, i});
-                int assignedPartition = assignPartitionToEdge(solution, firstPartition, secondPartition, numberOfTempEdge);
-                if (assignedPartition != -1) return assignedPartition;
-            }
+    private int getNewPartitionIdForLink(Integer[] customers, int firstPartition, int secondPartition) {
+        int firstCustomerId = customers[0];
+        int secondCustomerId = customers[1];
+        int assignedPartition = getNewPartitionIdForLinkForFirstCustomer(firstPartition, secondPartition, firstCustomerId);
+        if (assignedPartition == -1) {
+            assignedPartition = getNewPartitionIdForLinkForSecondCustomer(firstPartition, secondPartition, secondCustomerId);
         }
+        return assignedPartition;
+    }
 
-        for (int i = 0; i < idpProblem.getInitData().getCustomersNumber(); i++) {
-            if (i < numberOfSecondCustomer) {
-                numberOfTempEdge = getNumberOfEdge(new Integer[]{i, numberOfSecondCustomer});
-                int assignedPartition = assignPartitionToEdge(solution, firstPartition, secondPartition, numberOfTempEdge);
-                if (assignedPartition != -1) return assignedPartition;
-            }
+    private int getNewPartitionIdForLinkForFirstCustomer(int firstPartition, int secondPartition, int firstCustomerId) {
+        int tempLinkId;
+        int assignedPartition = -1;
+        for (int i = firstCustomerId + 1; i < idpProblem.getInitData().getCustomerCount(); i++) {
+            tempLinkId = getLinkId(new Integer[]{firstCustomerId, i});
+            assignedPartition = assignPartitionToLink(firstPartition, secondPartition, tempLinkId);
+            if (assignedPartition != -1) break;
         }
-        return -1;
+        return assignedPartition;
+    }
+
+    private int getNewPartitionIdForLinkForSecondCustomer(int firstPartition, int secondPartition, int secondCustomerId) {
+        int tempLinkId;
+        int assignedPartition = -1;
+        for (int i = 0; i < idpProblem.getInitData().getCustomerCount() && i < secondCustomerId; i++) {
+            tempLinkId = getLinkId(new Integer[]{i, secondCustomerId});
+            assignedPartition = assignPartitionToLink(firstPartition, secondPartition, tempLinkId);
+            if (assignedPartition != -1) break;
+        }
+        return assignedPartition;
     }
 
     /**
-     * Appoint partition index for an edge between the two users
-     *
-     * @param edge
-     * @return
+     * Get customers connected by link
      */
-    private Integer[] getCustomers(Integer edge) {
-        for (Map.Entry<Integer, Integer[]> entry : idpProblem.getCustomersAssignedToLink().entrySet()) {
-            if (edge.equals(entry.getKey())) {
-                return entry.getValue();
-            }
-        }
-        return null;
+    private Integer[] getCustomers(Integer link) {
+        return idpProblem.getCustomersAssignedToLink().get(link);
     }
 
-    private int getNumberOfEdge(Integer[] customers) {
-        for (Map.Entry<Integer, Integer[]> entry : idpProblem.getCustomersAssignedToLink().entrySet()) {
-            if (customers[0].equals(entry.getValue()[0]) && customers[1].equals(entry.getValue()[1])) {
-                return entry.getKey();
+    /**
+     * Get link id between two customers
+     */
+    private int getLinkId(Integer[] customers) {
+        Integer customerMinId = Arrays.stream(customers).mapToInt(i -> i).min().getAsInt();
+        Integer customerMaxId = Arrays.stream(customers).mapToInt(i -> i).max().getAsInt();
+        int linkId = -1;
+
+        ArrayList<Integer[]> customersAssignedToLink = idpProblem.getCustomersAssignedToLink();
+        for (int i = 0; i < customersAssignedToLink.size(); i++) {
+            if (customerMinId.equals(customersAssignedToLink.get(i)[0]) && customerMaxId.equals(customersAssignedToLink.get(i)[1])) {
+                linkId = i;
+                break;
             }
         }
-        return -1;
+
+        return linkId;
     }
 
-    private int assignPartitionToEdge(IdpSolution solution, int firstPartition, int secondPartition, int numberOfTempEdge) {
-        if (numberOfTempEdge != -1) {
+    private int assignPartitionToLink(int firstPartition, int secondPartition, int linkId) {
+        if (linkId != -1) {
             // if current edge has a positive value
-            if (solution.getValueAt(numberOfTempEdge) == firstPartition) {
+            if (newSolution.getValueAt(linkId) == firstPartition) {
                 return firstPartition;
-            } else if (solution.getValueAt(numberOfTempEdge) == secondPartition) {
+            } else if (newSolution.getValueAt(linkId) == secondPartition) {
                 return secondPartition;
             }
         }

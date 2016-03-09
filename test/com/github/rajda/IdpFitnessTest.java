@@ -17,17 +17,17 @@ public class IdpFitnessTest {
     }
 
     @Test
-    public void testGetMinPartitionNumber() throws Exception {
+    public void testGetMinPartitionCount() throws Exception {
 
     }
 
     @Test
-    public void testGetMaxPartitionNumber() throws Exception {
+    public void testGetMaxPartitionCount() throws Exception {
 
     }
 
     @Test
-    public void testGetAdmNumber() throws Exception {
+    public void testGetAdmCount() throws Exception {
 
     }
 }

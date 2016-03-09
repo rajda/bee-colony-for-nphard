@@ -15,7 +15,7 @@ public class ExchangeMinPartition implements OptimizeStrategy {
         IdpSolution newSolution = (IdpSolution) solution.clone();
 
         int user = newSolution.getRandomUserFromNotMinPartition();
-        int minPartition = newSolution.getNumberOfMinPart();
+        int minPartition = newSolution.getMinPartitionId();
 
         newSolution.setValueAt(user, minPartition);
         newSolution.setFitness(idpProblem.countFitness(newSolution));

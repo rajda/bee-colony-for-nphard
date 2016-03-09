@@ -13,32 +13,32 @@ public class IdpSolution extends Solution {
         return (IdpSolution) super.clone();
     }
 
-    public int getNumberOfMinPart() {
-        return ((IdpFitness) fitness).getMinPartitionNumber();
+    public int getMinPartitionId() {
+        return ((IdpFitness) fitness).getMinPartitionId();
     }
 
-    private int getNumberOfMaxPart() {
-        return ((IdpFitness) fitness).getMaxPartitionNumber();
+    private int getMaxPartitionId() {
+        return ((IdpFitness) fitness).getMaxPartitionId();
     }
 
     public int getRandomUserFromNotMinPartition() {
         int indexOfUser = random(0, valuesLength - 1);
-        while (values[indexOfUser] == getNumberOfMinPart()) {
+        while (values[indexOfUser] == getMinPartitionId()) {
             indexOfUser = random(0, valuesLength - 1);
         }
         return indexOfUser;
     }
 
     public int getRandomUser(int partition) {
-        int indexOfUser = random(0, valuesLength - 1);
-        while (values[indexOfUser] != partition) {
-            indexOfUser = random(0, valuesLength - 1);
+        int userId = random(0, valuesLength - 1);
+        while (values[userId] != partition) {
+            userId = random(0, valuesLength - 1);
         }
-        return indexOfUser;
+        return userId;
     }
 
     @Override
     public String toString() {
-        return getNumberOfMinPart() + ", " + getNumberOfMaxPart() + ", " + super.toString();
+        return getMinPartitionId() + ", " + getMaxPartitionId() + ", " + super.toString();
     }
 }

@@ -8,14 +8,14 @@ import static com.github.rajda.Helper.*;
  * @author Jacek Rajda
  */
 public class BeeColonyAlgorithm {
-    private static final int MAXIMUM_CYCLE_NUMBER = 500;
+    private static final int MAXIMUM_CYCLE_COUNT = 500;
 
-    private static final int EMPLOYED_BEES_GROUPS_NUMBER = 10;
-    private static final int SELECTED_BEST_FOOD_SOURCES_NUMBER = 10;
+    private static final int EMPLOYED_BEES_GROUP_COUNT = 10;
+    private static final int SELECTED_BEST_FOOD_SOURCE_COUNT = 10;
 
-    private static final int EMPLOYED_BEES_NUMBER_PER_FOOD_SOURCE = 10;
-    private static final int ONLOOKER_BEES_NUMBER_PER_FOOD_SOURCE = 1;
-    private static final int SCOUT_BEES_NUMBER_PER_FOOD_SOURCE = 1;
+    private static final int EMPLOYED_BEES_PER_FOOD_SOURCE_COUNT = 10;
+    private static final int ONLOOKER_BEES_PER_FOOD_SOURCE_COUNT = 1;
+    private static final int SCOUT_BEES_PER_FOOD_SOURCE_COUNT = 1;
 
     private final Problem problem;
 
@@ -29,7 +29,7 @@ public class BeeColonyAlgorithm {
      */
     public void goThroughSteps() {
         /** Initialize the set of food source positions (-> initial population of solutions (C = 0)) */
-        for (int employedBeeSetId = 0; employedBeeSetId < EMPLOYED_BEES_GROUPS_NUMBER; employedBeeSetId++) {
+        for (int employedBeeSetId = 0; employedBeeSetId < EMPLOYED_BEES_GROUP_COUNT; employedBeeSetId++) {
             /** Initialize the position of food source position (-> single solution) */
             problem.createInitialSolution();
         }
@@ -38,21 +38,21 @@ public class BeeColonyAlgorithm {
         showSolutionsList(problem.getSolutionsList());
 
         /** Go through the population optimization cycles (C = 1, 2, 3, ..., MCN) */
-        for (int populationCycleId = 0; populationCycleId < MAXIMUM_CYCLE_NUMBER; populationCycleId++) {
+        for (int populationCycleId = 0; populationCycleId < MAXIMUM_CYCLE_COUNT; populationCycleId++) {
 
             /** Get actually best food sources (-> the best solutions) */
-            for (int foodSourceId = 0; foodSourceId < SELECTED_BEST_FOOD_SOURCES_NUMBER; foodSourceId++) {
+            for (int foodSourceId = 0; foodSourceId < SELECTED_BEST_FOOD_SOURCE_COUNT; foodSourceId++) {
                 Solution currentSolution = problem.getSolutionsList().get(foodSourceId);
 
-                for (int employedBeeId = 0; employedBeeId < EMPLOYED_BEES_NUMBER_PER_FOOD_SOURCE; employedBeeId++) {
+                for (int employedBeeId = 0; employedBeeId < EMPLOYED_BEES_PER_FOOD_SOURCE_COUNT; employedBeeId++) {
                     modify(currentSolution);
                 }
 
-                for (int onlookerBeeId = 0; onlookerBeeId < ONLOOKER_BEES_NUMBER_PER_FOOD_SOURCE; onlookerBeeId++) {
+                for (int onlookerBeeId = 0; onlookerBeeId < ONLOOKER_BEES_PER_FOOD_SOURCE_COUNT; onlookerBeeId++) {
                     localSearchProbability(currentSolution);
                 }
 
-                for (int scoutBeeId = 0; scoutBeeId < SCOUT_BEES_NUMBER_PER_FOOD_SOURCE; scoutBeeId++) {
+                for (int scoutBeeId = 0; scoutBeeId < SCOUT_BEES_PER_FOOD_SOURCE_COUNT; scoutBeeId++) {
                     localSearchDiscovery(currentSolution);
                 }
             }
